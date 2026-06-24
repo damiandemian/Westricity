@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Presupuestos App</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#232323;--bg2:#2e2e2e;--bg3:#3a3a3a;--bg4:#1e1e1e;
+  --accent:#00e600;--accent2:#00cc00;
+  --text:#ffffff;--text2:#cccccc;--text3:#aaaaaa;--text4:#666666;--text5:#444444;
+  --border:#323232;--border2:#3e3e3e;--red:#e24b4a;--amber:#f9a825;
+}
+.theme-blue{--accent:#2979ff;--accent2:#1565c0;}
+.theme-orange{--accent:#ff6d00;--accent2:#e65100;}
+.theme-purple{--accent:#aa00ff;--accent2:#7b00d4;}
+.theme-red{--accent:#f44336;--accent2:#c62828;}
+.theme-cyan{--accent:#00bcd4;--accent2:#0097a7;}
+.theme-light{
+  --bg:#f0f0f0;--bg2:#ffffff;--bg3:#e0e0e0;--bg4:#ececec;
+  --text:#111111;--text2:#333333;--text3:#666666;--text4:#999999;--text5:#cccccc;
+  --border:#dddddd;--border2:#cccccc;--accent:#00b300;--accent2:#009200;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .25s,color .25s;}
+.screen{display:none;flex-direction:column;min-height:100vh;}
+.screen.active{display:flex;}
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg);flex-shrink:0;}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.back-btn{width:34px;height:34px;border-radius:8px;background:var(--bg3);border:none;color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.top-step{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.top-title{font-size:17px;font-weight:700;color:var(--text);}
+/* PROGRESS */
+.prog-wrap{padding:0 16px;}
+.prog-track{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;}
+.prog-seg{height:3px;border-radius:2px;background:var(--text5);}
+.prog-seg.done{background:var(--accent);}
+/* INPUTS */
+.body-scroll{flex:1;overflow-y:auto;padding:16px;}
+.field-label{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.8px;margin-bottom:6px;display:block;}
+.req{color:var(--accent);}
+.field-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;font-size:15px;color:var(--text2);outline:none;margin-bottom:16px;display:block;transition:border .15s;}
+.field-input::placeholder{color:var(--text4);}
+.field-input:focus{border-color:var(--accent);color:var(--text);}
+.elegir-btn{width:100%;background:var(--bg3);border:none;border-radius:10px;padding:15px;color:var(--text2);font-size:15px;font-weight:500;cursor:pointer;text-align:center;margin-bottom:20px;}
+/* CATS */
+.cats{display:flex;gap:8px;padding:12px 16px 10px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.cats::-webkit-scrollbar{display:none;}
+.cat-btn{border-radius:20px;border:1px solid var(--text5);background:transparent;color:var(--text3);font-size:13px;padding:6px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.cat-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+/* BUTTONS */
+.btn-accent{width:100%;background:var(--accent);border:none;padding:18px;font-size:16px;font-weight:700;color:#000;cursor:pointer;transition:background .15s;}
+.btn-accent:hover{background:var(--accent2);}
+.btn-accent:disabled{background:var(--bg3);color:var(--text4);cursor:default;}
+.btn-gray{width:100%;background:var(--bg);border:none;border-top:1px solid var(--border);padding:16px;font-size:15px;font-weight:700;color:var(--text);cursor:pointer;}
+.btns2{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.footer{flex-shrink:0;}
+/* ITEM ROWS */
+.item-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);}
+.item-row:hover{background:var(--bg2);}
+.item-name{font-size:14px;font-weight:600;color:var(--text2);}
+.item-sub{font-size:12px;color:var(--text4);margin-top:2px;}
+.qty-ctrl{display:flex;align-items:center;flex-shrink:0;}
+.qty-btn{width:32px;height:32px;background:var(--bg3);border:none;color:var(--text3);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:6px;line-height:1;}
+.qty-val{width:36px;text-align:center;font-size:14px;font-weight:700;color:var(--text);}
+.qty-val.nz{color:var(--accent);}
+.signo{font-size:14px;color:var(--text4);}
+.green-inp{background:var(--bg);border:1.5px solid var(--accent);border-radius:8px;color:var(--accent);font-size:15px;font-weight:700;text-align:right;padding:7px 10px;outline:none;}
+/* HOME */
+.home-logo-area{padding:16px 16px 4px;display:flex;align-items:center;gap:10px;}
+.company-logo-img{max-height:44px;max-width:140px;object-fit:contain;border-radius:6px;}
+.company-name-text{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px;}
+.home-greeting{padding:2px 16px 14px;font-size:14px;color:var(--text3);}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.hcard{background:var(--bg2);padding:20px 18px 18px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:filter .12s;}
+.hcard:hover{filter:brightness(1.12);}
+.hcard.accent{background:var(--accent);border-radius:18px;margin:2px 1px 0 2px;}
+.hcard.accent .hcard-icon,.hcard.accent .hcard-title,.hcard.accent .hcard-sub{color:#000;}
+.hcard.outline{background:var(--bg2);border:1.5px solid var(--accent);border-radius:18px;margin:2px 2px 0 2px;grid-column:1/-1;}
+.hcard.outline.half{grid-column:auto;}
+.hcard.outline .hcard-icon,.hcard.outline .hcard-title{color:var(--accent);}
+.hcard-icon{font-size:24px;color:var(--text3);}
+.hcard-title{font-size:20px;font-weight:700;color:var(--text);}
+.hcard-sub{font-size:14px;color:var(--text3);}
+.right-col{display:flex;flex-direction:column;gap:2px;}
+.hcard-sm{background:var(--bg2);padding:16px 18px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;flex:1;transition:filter .12s;}
+.hcard-sm:hover{filter:brightness(1.12);}
+.hcard-row{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s;}
+.hcard-row:hover{background:var(--bg2);}
+.hcard-row .hcard-icon{font-size:22px;color:var(--accent);margin:0;}
+.home-prog-wrap{padding:14px 16px 16px;}
+.home-prog-label{font-size:13px;color:var(--accent);margin-bottom:8px;}
+.home-prog-track{background:var(--text5);border-radius:4px;height:5px;}
+.home-prog-fill{background:var(--accent);height:5px;border-radius:4px;transition:width .4s;}
+/* OPTION ROWS */
+.option-row{display:flex;align-items:center;gap:14px;padding:17px 18px;border-bottom:1px solid var(--border);cursor:pointer;}
+.option-row:hover{background:var(--bg2);}
+.radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--text5);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.radio.sel{border-color:var(--accent);}
+.radio-dot{width:11px;height:11px;border-radius:50%;background:var(--accent);display:none;}
+.radio.sel .radio-dot{display:block;}
+.viatico-box{background:var(--bg3);padding:16px 18px;}
+.no-inc-btn{font-size:13px;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:600;}
+.detalle-ta{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;font-size:14px;color:var(--text2);outline:none;resize:none;min-height:90px;}
+.detalle-ta::placeholder{color:var(--text4);}
+.detalle-ta:focus{border-color:var(--accent);}
+.hint{font-size:11px;color:var(--text4);padding:4px 16px 10px;}
+/* PRECIOS */
+.price-edit-inp{background:var(--bg);border:1.5px solid var(--accent);border-radius:8px;color:var(--accent);font-size:14px;font-weight:700;width:100px;text-align:right;padding:6px 10px;outline:none;}
+.restaurar-btn{background:var(--bg3);border:1px solid var(--text5);border-radius:8px;color:var(--text2);font-size:13px;padding:7px 14px;cursor:pointer;}
+/* MO */
+.mo-price-inp{background:var(--bg);border:1.5px solid var(--accent);border-radius:8px;color:var(--accent);font-size:13px;font-weight:700;width:90px;padding:5px 8px;outline:none;text-align:right;}
+.add-task-btn{display:flex;align-items:center;gap:8px;padding:13px 16px;color:var(--accent);font-size:14px;font-weight:600;background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;width:100%;}
+/* VISTA PREVIA */
+.doc{background:#fff;border-radius:12px;overflow:hidden;color:#1a1a1a;margin:12px 14px;}
+.doc-head{padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--accent);}
+.doc-logo-area{display:flex;align-items:center;gap:8px;}
+.doc-company-img{max-height:36px;max-width:100px;object-fit:contain;border-radius:4px;}
+.doc-company-name{font-size:16px;font-weight:800;color:#1a1a1a;}
+.doc-presup-lbl{font-size:11px;color:#aaa;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-left:6px;}
+.doc-date{font-size:12px;color:#aaa;}
+.doc-parties{display:grid;grid-template-columns:1fr 1fr;padding:14px 18px 10px;}
+.party-lbl{font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}
+.party-name{font-size:14px;font-weight:700;color:#1a1a1a;}
+.doc-tipo{display:inline-block;border-radius:6px;padding:3px 12px;font-size:12px;font-weight:700;margin:0 18px 10px;border:1px solid var(--accent);color:var(--accent);}
+.doc-sec{font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:6px 18px 2px;}
+.doc-line{display:flex;justify-content:space-between;padding:7px 18px;font-size:13px;color:#333;}
+.doc-qty{font-size:11px;color:#388e3c;font-weight:700;}
+.doc-subtot{display:flex;justify-content:space-between;padding:8px 18px;font-size:12px;color:#888;border-top:1px solid #eee;}
+.doc-total-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;margin-top:6px;}
+.doc-total-lbl{font-size:15px;font-weight:800;color:#000;letter-spacing:1px;}
+.doc-total-amt{font-size:22px;font-weight:800;color:#000;}
+.doc-valido{text-align:center;padding:10px;font-size:12px;color:#aaa;}
+/* HISTORIAL */
+.hist-card{padding:16px;border-bottom:1px solid var(--border);cursor:pointer;}
+.hist-card:hover{background:var(--bg2);}
+.hist-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.hist-name{font-size:15px;font-weight:700;color:var(--text);}
+.hist-amount{font-size:15px;font-weight:700;color:var(--accent);}
+.hist-date{font-size:12px;color:var(--text3);margin-top:2px;}
+.hist-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.hist-tipo{font-size:12px;color:var(--text3);background:var(--bg3);border-radius:5px;padding:3px 10px;}
+.btn-sm{background:var(--bg3);border:1px solid var(--text5);border-radius:7px;color:var(--text2);font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer;}
+.btn-sm.danger{color:var(--red);}
+.estado-badge{font-size:11px;font-weight:700;border-radius:5px;padding:3px 10px;border:1px solid;}
+.estado-badge.pendiente{color:var(--amber);border-color:var(--amber);background:rgba(249,168,37,.1);}
+.estado-badge.aprobado{color:var(--accent);border-color:var(--accent);background:rgba(0,230,0,.08);}
+/* AGENDA */
+.agenda-card{background:var(--bg2);border-radius:14px;padding:14px 16px;margin:0 12px 10px;border-left:3px solid var(--accent);}
+.agenda-card.vencido{border-left-color:var(--red);opacity:.7;}
+.agenda-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.agenda-card-cliente{font-size:16px;font-weight:700;color:var(--text);}
+.agenda-card-fecha{font-size:13px;color:var(--accent);font-weight:700;white-space:nowrap;}
+.agenda-card-nota{font-size:13px;color:var(--text3);margin-top:4px;}
+.agenda-card-actions{display:flex;gap:6px;margin-top:10px;}
+.gcal-btn{display:flex;align-items:center;gap:5px;background:#1a73e8;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;padding:5px 11px;cursor:pointer;}
+.gcal-btn:hover{background:#1558b0;}
+/* CONFIG */
+.config-row{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border);cursor:pointer;}
+.config-row:hover{background:var(--bg2);}
+.config-row-left{display:flex;align-items:center;gap:12px;}
+.cfg-icon{font-size:20px;color:var(--accent);}
+.cfg-label{font-size:15px;color:var(--text);}
+.cfg-sub{font-size:12px;color:var(--text3);}
+.section-label{padding:14px 18px 6px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;}
+/* LOGO UPLOAD */
+.upload-area{border:2px dashed var(--border2);border-radius:12px;padding:28px;text-align:center;cursor:pointer;margin-bottom:16px;}
+.upload-area:hover{border-color:var(--accent);}
+.logo-prev{max-height:80px;max-width:200px;border-radius:8px;display:none;margin:0 auto 10px;}
+/* TEMAS */
+.theme-row{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border);cursor:pointer;}
+.theme-row:hover{background:var(--bg2);}
+.swatch{width:28px;height:28px;border-radius:50%;border:3px solid transparent;}
+.swatch.sel{border-color:var(--text);}
+/* MODAL */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:flex-end;}
+.modal-box{background:var(--bg2);border-radius:16px 16px 0 0;width:100%;max-height:82vh;overflow-y:auto;}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border);}
+.modal-head span{font-size:16px;font-weight:700;color:var(--text);}
+.modal-close{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text4);}
+.empty-state i{font-size:48px;display:block;margin-bottom:12px;color:var(--text5);}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="s-home">
+  <div class="home-logo-area" id="home-logo-area"></div>
+  <div class="home-greeting" id="home-greeting">Hola !</div>
+  <div class="home-grid">
+    <div class="hcard accent" onclick="iniciarNuevo()">
+      <div class="hcard-icon"><i class="ti ti-file-plus"></i></div>
+      <div class="hcard-title">Nuevo</div>
+      <div class="hcard-sub">Presupuesto</div>
+    </div>
+    <div class="right-col">
+      <div class="hcard-sm" onclick="go('s-historial')">
+        <div class="hcard-icon"><i class="ti ti-clock"></i></div>
+        <div class="hcard-title">Historial</div>
+        <div class="hcard-sub" id="hist-count-home">0 guardados</div>
+      </div>
+      <div style="height:2px;background:var(--bg);"></div>
+      <div class="hcard-sm" onclick="go('s-config')">
+        <div class="hcard-icon"><i class="ti ti-settings"></i></div>
+        <div class="hcard-title">Configuración</div>
+        <div class="hcard-sub">Personalizar</div>
+      </div>
+    </div>
+    <div class="hcard outline half" onclick="go('s-precios')">
+      <div class="hcard-icon"><i class="ti ti-currency-dollar"></i></div>
+      <div class="hcard-title">Precios</div>
+      <div class="hcard-sub">Materiales</div>
+    </div>
+    <div class="hcard outline half" onclick="go('s-clientes')">
+      <div class="hcard-icon"><i class="ti ti-users"></i></div>
+      <div class="hcard-title">Clientes</div>
+      <div class="hcard-sub" id="cli-count-home">0 guardados</div>
+    </div>
+    <div class="hcard outline" onclick="go('s-agenda')" style="border-color:var(--accent2,#7c4dff);">
+      <div class="hcard-icon" style="color:var(--accent2,#7c4dff);"><i class="ti ti-calendar-event"></i></div>
+      <div class="hcard-title" style="color:var(--accent2,#7c4dff);">Agenda</div>
+      <div class="hcard-sub">Turnos y visitas</div>
+    </div>
+  </div>
+  <div class="home-prog-wrap">
+    <div class="home-prog-label" id="home-prog-label">0 presupuestos guardados</div>
+  </div>
+</div>
+
+<!-- PASO 1 -->
+<div class="screen" id="s-paso1">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button>
+      <div><div class="top-step">Paso 1 de 4</div><div class="top-title">Datos del cliente</div></div>
+    </div>
+  </div>
+  <div class="prog-wrap"><div class="prog-track">
+    <div class="prog-seg done"></div><div class="prog-seg"></div><div class="prog-seg"></div><div class="prog-seg"></div>
+  </div></div>
+  <div class="body-scroll">
+    <button class="elegir-btn" onclick="abrirCliModal()">Elegir cliente guardado</button>
+    <label class="field-label">CLIENTE <span class="req">*</span></label>
+    <input class="field-input" id="p1-cliente" type="text" placeholder="Ej: Garcia, Roberto"/>
+    <label class="field-label">DNI (OPCIONAL)</label>
+    <input class="field-input" id="p1-dni" type="text" placeholder="12.345.678"/>
+    <label class="field-label">DIRECCIÓN (OPCIONAL)</label>
+    <input class="field-input" id="p1-dir" type="text" placeholder="Ej: San Martin 456, Flores"/>
+  </div>
+  <div class="footer"><button class="btn-accent" onclick="irPaso2()">Continuar</button></div>
+</div>
+
+<!-- PASO 2 -->
+<div class="screen" id="s-paso2">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-paso1')"><i class="ti ti-arrow-left"></i></button>
+      <div><div class="top-step">Paso 2 de 4</div><div class="top-title">Tipo de trabajo</div></div>
+    </div>
+  </div>
+  <div class="prog-wrap"><div class="prog-track">
+    <div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg"></div><div class="prog-seg"></div>
+  </div></div>
+  <div style="flex:1;overflow-y:auto;">
+    <div id="p2-opciones">
+      <div class="option-row" data-val="Mantenimiento" onclick="selTipo(this)"><div class="radio"><div class="radio-dot"></div></div><span style="font-size:16px;font-weight:600;color:var(--text2);">Mantenimiento</span></div>
+      <div class="option-row" data-val="Reparacion" onclick="selTipo(this)"><div class="radio"><div class="radio-dot"></div></div><span style="font-size:16px;font-weight:600;color:var(--text2);">Reparacion</span></div>
+      <div class="option-row" data-val="Instalacion" onclick="selTipo(this)"><div class="radio"><div class="radio-dot"></div></div><span style="font-size:16px;font-weight:600;color:var(--text2);">Instalacion</span></div>
+      <div class="option-row" data-val="Correccion" onclick="selTipo(this)"><div class="radio"><div class="radio-dot"></div></div><span style="font-size:16px;font-weight:600;color:var(--text2);">Correccion</span></div>
+      <div class="option-row" data-val="Ampliacion" onclick="selTipo(this)"><div class="radio"><div class="radio-dot"></div></div><span style="font-size:16px;font-weight:600;color:var(--text2);">Ampliacion</span></div>
+      <div class="option-row" data-val="Luminarias" onclick="selTipo(this)"><div class="radio"><div class="radio-dot"></div></div><span style="font-size:16px;font-weight:600;color:var(--text2);">Luminarias</span></div>
+    </div>
+    <div class="viatico-box">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div><div style="font-size:15px;font-weight:700;color:var(--text);">Visita / Viatico</div><div style="font-size:12px;color:var(--text3);margin-top:2px;">Costo de traslado</div></div>
+        <button class="no-inc-btn" id="p2-noinc-btn" onclick="toggleViatico()">No incluir</button>
+      </div>
+      <div id="p2-precio-row" style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;color:var(--text3);">Precio:</span>
+        <div style="display:flex;align-items:center;gap:6px;"><span class="signo">$</span><input class="green-inp" style="width:100px;" type="number" id="p2-viatico" value="3500"/></div>
+      </div>
+    </div>
+    <div style="padding:16px;">
+      <label class="field-label">DETALLE ADICIONAL (OPCIONAL)</label>
+      <textarea class="detalle-ta" id="p2-detalle" placeholder="Detalles adicionales del trabajo..."></textarea>
+      <div class="hint" style="padding:4px 0 0;">Aparece en el presupuesto.</div>
+    </div>
+  </div>
+  <div class="footer"><button class="btn-accent" id="p2-continuar" disabled onclick="go('s-paso3')">Continuar</button></div>
+</div>
+
+<!-- PASO 3 -->
+<div class="screen" id="s-paso3">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-paso2')"><i class="ti ti-arrow-left"></i></button>
+      <div><div class="top-step">Paso 3 de 4</div><div class="top-title">Materiales</div></div>
+    </div>
+    <div id="p3-total" style="font-weight:700;color:var(--accent);">$0</div>
+  </div>
+  <div class="prog-wrap"><div class="prog-track">
+    <div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg"></div>
+  </div></div>
+  <div class="cats" id="p3-cats"></div>
+  <div style="flex:1;overflow-y:auto;" id="p3-lista"></div>
+  <div class="footer"><button class="btn-accent" onclick="go('s-paso4')">Mano de obra</button></div>
+</div>
+
+<!-- PASO 4 -->
+<div class="screen" id="s-paso4">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-paso3')"><i class="ti ti-arrow-left"></i></button>
+      <div><div class="top-step">Paso 4 de 4</div><div class="top-title">Mano de obra</div></div>
+    </div>
+    <div id="p4-total" style="font-weight:700;color:var(--accent);">$0</div>
+  </div>
+  <div class="prog-wrap"><div class="prog-track">
+    <div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg done"></div><div class="prog-seg done"></div>
+  </div></div>
+  <div class="hint" style="padding:10px 16px 4px;">Valores orientativos y editables. Ajustalos a tu zona.</div>
+  <div class="cats" id="p4-cats"></div>
+  <div style="flex:1;overflow-y:auto;" id="p4-lista"></div>
+  <div class="footer"><button class="btn-accent" onclick="generarVista()">Ver presupuesto</button></div>
+</div>
+
+<!-- VISTA PREVIA -->
+<div class="screen" id="s-vista">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" id="vista-back-btn"><i class="ti ti-arrow-left"></i></button>
+      <div class="top-title">Vista previa</div>
+    </div>
+    <button id="vista-edit-btn" style="background:var(--bg3);border:none;border-radius:8px;padding:7px 13px;color:var(--text2);font-size:13px;cursor:pointer;font-weight:600;" onclick="editarDesdeVista()"><i class="ti ti-edit"></i> Editar</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;" id="doc-wrap"></div>
+  <div class="footer">
+    <div class="btns2">
+      <button class="btn-accent" onclick="compartirPDF()">PDF</button>
+      <button class="btn-accent" onclick="compartirWA()">WhatsApp</button>
+    </div>
+    <button class="btn-gray" id="guardar-btn" onclick="guardarHistorial()">Guardar en historial</button>
+  </div>
+</div>
+
+<!-- HISTORIAL -->
+<div class="screen" id="s-historial">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button>
+      <div class="top-title">Historial</div>
+    </div>
+    <div style="font-size:13px;color:var(--text3);" id="hist-count-top"></div>
+  </div>
+  <div style="padding:10px 16px 6px;">
+    <div style="position:relative;">
+      <i class="ti ti-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text4);font-size:16px;pointer-events:none;"></i>
+      <input class="field-input" id="hist-search" type="text" placeholder="Buscar por cliente..." style="padding-left:36px;margin-bottom:0;" oninput="renderHistorial()"/>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;" id="hist-lista"></div>
+</div>
+
+<!-- CLIENTES -->
+<div class="screen" id="s-clientes">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button>
+      <div class="top-title">Clientes</div>
+    </div>
+    <button class="back-btn" style="background:var(--accent);color:#000;" onclick="addCliente()"><i class="ti ti-plus"></i></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;" id="cli-lista"></div>
+</div>
+
+<!-- PRECIOS -->
+<div class="screen" id="s-precios">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button>
+      <div><div class="top-title">Precios</div><div class="top-step" id="prec-mod-lbl">0 modificados</div></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="restaurar-btn" onclick="exportarXLS()" title="Exportar a Excel"><i class="ti ti-file-spreadsheet"></i></button>
+      <button class="restaurar-btn" onclick="document.getElementById('import-xls').click()" title="Importar desde Excel"><i class="ti ti-upload"></i></button>
+      <input type="file" id="import-xls" accept=".xlsx,.xls" style="display:none;" onchange="importarXLS(this)"/>
+      <button class="restaurar-btn" onclick="restaurarPrecios()">Restaurar</button>
+    </div>
+  </div>
+  <div style="padding:8px 16px 0;">
+    <input class="field-input" style="margin-bottom:0;" id="prec-search" type="text" placeholder="Buscar material..." oninput="renderPrecios()"/>
+  </div>
+  <div class="cats" id="prec-cats"></div>
+  <div style="flex:1;overflow-y:auto;" id="prec-lista"></div>
+</div>
+
+<!-- CONFIGURACION -->
+<div class="screen" id="s-config">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button>
+      <div class="top-title">Configuración</div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;">
+    <div class="section-label">MI EMPRESA</div>
+    <div class="config-row" onclick="go('s-perfil')">
+      <div class="config-row-left"><i class="ti ti-building cfg-icon"></i><div><div class="cfg-label">Datos de empresa</div><div class="cfg-sub">Nombre, teléfono, email, matrícula</div></div></div>
+      <i class="ti ti-chevron-right" style="color:var(--text4);"></i>
+    </div>
+    <div class="config-row" onclick="go('s-logo')">
+      <div class="config-row-left"><i class="ti ti-photo cfg-icon"></i><div><div class="cfg-label">Logo / Nombre visual</div><div class="cfg-sub">Aparece en el presupuesto y en el inicio</div></div></div>
+      <i class="ti ti-chevron-right" style="color:var(--text4);"></i>
+    </div>
+    <div class="section-label" style="margin-top:8px;">DATOS</div>
+    <div class="config-row" onclick="exportarDatos()">
+      <div class="config-row-left"><i class="ti ti-download cfg-icon"></i><div><div class="cfg-label">Exportar datos</div><div class="cfg-sub">Descarga backup JSON con historial y clientes</div></div></div>
+      <i class="ti ti-chevron-right" style="color:var(--text4);"></i>
+    </div>
+    <div class="config-row" onclick="document.getElementById('import-file').click()">
+      <div class="config-row-left"><i class="ti ti-upload cfg-icon"></i><div><div class="cfg-label">Importar datos</div><div class="cfg-sub">Restaura backup desde otro dispositivo</div></div></div>
+      <i class="ti ti-chevron-right" style="color:var(--text4);"></i>
+    </div>
+    <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importarDatos(this)"/>
+    <div class="section-label" style="margin-top:8px;">APARIENCIA</div>
+    <div class="config-row" onclick="go('s-temas')">
+      <div class="config-row-left"><i class="ti ti-palette cfg-icon"></i><div><div class="cfg-label">Tema de color</div><div class="cfg-sub" id="cfg-tema-sub">Verde (por defecto)</div></div></div>
+      <i class="ti ti-chevron-right" style="color:var(--text4);"></i>
+    </div>
+  </div>
+</div>
+
+<!-- PERFIL -->
+<div class="screen" id="s-perfil">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-config')"><i class="ti ti-arrow-left"></i></button>
+      <div class="top-title">Datos de empresa</div>
+    </div>
+  </div>
+  <div class="body-scroll">
+    <label class="field-label">NOMBRE / RAZÓN SOCIAL</label>
+    <input class="field-input" id="perf-nombre" type="text" placeholder="Tu nombre o empresa"/>
+    <label class="field-label">TELÉFONO</label>
+    <input class="field-input" id="perf-tel" type="text" placeholder="+54 11 ..."/>
+    <label class="field-label">EMAIL</label>
+    <input class="field-input" id="perf-email" type="email" placeholder="tu@email.com"/>
+    <label class="field-label">MATRÍCULA / CUIT (OPCIONAL)</label>
+    <input class="field-input" id="perf-matricula" type="text" placeholder="20-12345678-9"/>
+  </div>
+  <div class="footer"><button class="btn-accent" onclick="guardarPerfil()">Guardar</button></div>
+</div>
+
+<!-- LOGO -->
+<div class="screen" id="s-logo">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-config')"><i class="ti ti-arrow-left"></i></button>
+      <div class="top-title">Logo de empresa</div>
+    </div>
+  </div>
+  <div class="body-scroll">
+    <div class="upload-area" onclick="document.getElementById('logo-file').click()">
+      <img id="logo-prev-img" class="logo-prev" src="" alt=""/>
+      <i class="ti ti-upload" id="logo-upload-icon" style="font-size:36px;color:var(--text4);display:block;margin-bottom:8px;"></i>
+      <div style="font-size:14px;color:var(--text3);">Tocá para subir tu logo</div>
+      <div style="font-size:12px;color:var(--text4);margin-top:4px;">PNG, JPG · Fondo transparente recomendado</div>
+      <input type="file" id="logo-file" accept="image/*" style="display:none;" onchange="onLogoFile(this)"/>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button class="btn-sm danger" id="logo-remove-btn" style="display:none;" onclick="quitarLogo()"><i class="ti ti-trash"></i> Quitar logo</button>
+    </div>
+    <label class="field-label">O ESCRIBÍ EL NOMBRE DE TU EMPRESA</label>
+    <input class="field-input" id="logo-nombre-inp" type="text" placeholder="Ej: Electro Sur SA"/>
+    <div style="font-size:12px;color:var(--text4);margin-top:-10px;">Si subís un logo, este texto no se usará.</div>
+  </div>
+  <div class="footer"><button class="btn-accent" onclick="guardarLogo()">Guardar</button></div>
+</div>
+
+<!-- TEMAS -->
+<div class="screen" id="s-temas">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-config')"><i class="ti ti-arrow-left"></i></button>
+      <div class="top-title">Tema de color</div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;" id="temas-lista"></div>
+</div>
+
+<!-- AGENDA -->
+<div class="screen" id="s-agenda">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button>
+      <div class="top-title">Agenda</div>
+    </div>
+    <button class="restaurar-btn" onclick="abrirModalTurno(-1)"><i class="ti ti-plus"></i> Turno</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-top:10px;" id="agenda-lista"></div>
+</div>
+
+<!-- MODAL TURNO -->
+<div class="modal-ov" id="modal-turno" onclick="cerrarModals()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head"><span id="modal-turno-title">Nuevo turno</span><button class="modal-close" onclick="cerrarModals()"><i class="ti ti-x"></i></button></div>
+    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px;">
+      <input class="field-input" style="margin-bottom:0;" id="turno-cliente" type="text" placeholder="Nombre del cliente *"/>
+      <input class="field-input" style="margin-bottom:0;" id="turno-fecha" type="date"/>
+      <input class="field-input" style="margin-bottom:0;" id="turno-hora" type="time"/>
+      <input class="field-input" style="margin-bottom:0;" id="turno-duracion" type="number" placeholder="Duración en minutos (ej: 60)" min="15" step="15"/>
+      <input class="field-input" style="margin-bottom:0;" id="turno-nota" type="text" placeholder="Nota o dirección (opcional)"/>
+      <input type="hidden" id="turno-edit-idx" value="-1"/>
+      <button class="next-btn" onclick="guardarTurno()">Guardar turno</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTES -->
+<div class="modal-ov" id="modal-cli" onclick="cerrarModals()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head"><span>Clientes guardados</span><button class="modal-close" onclick="cerrarModals()"><i class="ti ti-x"></i></button></div>
+    <div id="modal-cli-lista"></div>
+  </div>
+</div>
+
+<!-- MODAL ADD MO -->
+<div class="modal-ov" id="modal-mo" onclick="cerrarModals()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head"><span>Agregar tarea personalizada</span><button class="modal-close" onclick="cerrarModals()"><i class="ti ti-x"></i></button></div>
+    <div style="padding:16px 18px;">
+      <label class="field-label">DESCRIPCIÓN</label>
+      <input class="field-input" id="mo-desc" type="text" placeholder="Ej: Cableado especial para tablero"/>
+      <label class="field-label">PRECIO UNITARIO ($)</label>
+      <input class="field-input" id="mo-precio" type="number" placeholder="15000"/>
+      <label class="field-label">CANTIDAD</label>
+      <input class="field-input" id="mo-qty" type="number" value="1" min="1"/>
+    </div>
+    <div style="padding:0 18px 18px;"><button class="btn-accent" style="border-radius:10px;" onclick="confirmarMO()">Agregar</button></div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const MATS_DEF={
+  "Cables":[{n:"Unipolar 1,5 mm",u:"m",p:850},{n:"Unipolar 2,5 mm",u:"m",p:1200},{n:"Unipolar 4 mm",u:"m",p:1850},{n:"TPR 2x1 mm",u:"m",p:1400},{n:"TPR 2x1,5 mm",u:"m",p:1800},{n:"TPR 2x2,5 mm",u:"m",p:2400},{n:"TPR 2x4 mm",u:"m",p:3400},{n:"TPR 3x1 mm",u:"m",p:1800},{n:"TPR 3x1,5 mm",u:"m",p:2400},{n:"TPR 3x2,5 mm",u:"m",p:3200},{n:"TPR 3x4 mm",u:"m",p:4500},{n:"Subterraneo 2x1,5 mm",u:"m",p:2800},{n:"Subterraneo 3x2,5 mm",u:"m",p:4200},{n:"Manguera 5x2,5 mm",u:"m",p:5800},{n:"Cable apantallado",u:"m",p:1900},{n:"Cable UTP cat6",u:"m",p:650},{n:"Cable coaxil RG6",u:"m",p:480}],
+  "Conectores":[{n:"Ficha tipo A macho",u:"u",p:120},{n:"Ficha tipo A hembra",u:"u",p:95},{n:"Bornera 2 terminales",u:"u",p:180},{n:"Bornera 4 terminales",u:"u",p:290},{n:"Conector RJ45",u:"u",p:85},{n:"Conector BNC",u:"u",p:210}],
+  "Bastidor":[{n:"Riel DIN 35mm x 1m",u:"u",p:950},{n:"Perfil omega 1m",u:"u",p:750},{n:"Soporte riel",u:"u",p:380},{n:"Tapa ciega",u:"u",p:220}],
+  "Proteccion":[{n:"Disyuntor 1P 10A",u:"u",p:3200},{n:"Disyuntor 1P 16A",u:"u",p:3400},{n:"Disyuntor 2P 25A",u:"u",p:6800},{n:"Diferencial 2P 25A 30mA",u:"u",p:12500},{n:"Llave termomagnética 3x32A",u:"u",p:9800}],
+  "Cajas":[{n:"Caja estanca 100x100",u:"u",p:850},{n:"Caja estanca 150x150",u:"u",p:1400},{n:"Caja pvc embutir",u:"u",p:320},{n:"Tablero metálico 12 módulos",u:"u",p:4500}],
+  "Caneria":[{n:"Caño corrugado 3/4",u:"m",p:320},{n:"Caño corrugado 1 pulgada",u:"m",p:480},{n:"Caño rígido 3/4",u:"m",p:550},{n:"Caño rígido 1 pulgada",u:"m",p:720},{n:"Canaleta 40x25",u:"m",p:680},{n:"Canaleta 60x40",u:"m",p:950}],
+  "Tableros":[{n:"Tablero monofásico 6 módulos",u:"u",p:3800},{n:"Tablero trifásico 12 módulos",u:"u",p:7200},{n:"Tablero metálico IP65",u:"u",p:11500}],
+  "Iluminacion":[{n:"Lámpara LED 9W",u:"u",p:1200},{n:"Lámpara LED 12W",u:"u",p:1600},{n:"Tira LED 5m",u:"u",p:3500},{n:"Reflector LED 50W",u:"u",p:5800},{n:"Plafón LED 18W",u:"u",p:2900}],
+  "Varios":[{n:"Cinta aisladora",u:"u",p:450},{n:"Cinta vulcanizante",u:"u",p:680},{n:"Prensacable PG13",u:"u",p:180},{n:"Grampas plásticas x100",u:"u",p:350},{n:"Mano de obra hora",u:"h",p:3500}]
+};
+const MO_DEF={
+  "Básicos":[{n:"MO General (p/u)",u:"",p:50000},{n:"Punto electrico",u:"u",p:15000},{n:"Cambio de toma/llave",u:"u",p:8000},{n:"Inst. luminaria",u:"u",p:10000},{n:"Cambio de termica",u:"u",p:12000},{n:"Inst. diferencial",u:"u",p:14000},{n:"Inst. tablero",u:"u",p:35000},{n:"Inst. aire acond.",u:"u",p:45000},{n:"Revisión general",u:"u",p:25000},{n:"Diagnóstico",u:"u",p:15000}],
+  "Acometidas":[{n:"Acometida monofásica",u:"u",p:80000},{n:"Acometida trifásica",u:"u",p:130000},{n:"Cambio medidor",u:"u",p:40000}],
+  "Cableado":[{n:"Cableado por metro",u:"m",p:3500},{n:"Pasaje cable embutido",u:"m",p:5500},{n:"Cableado exterior",u:"m",p:4200}],
+  "Cañería":[{n:"Cañería corrugada",u:"m",p:2500},{n:"Cañería rígida embutida",u:"m",p:4000},{n:"Cañería exterior",u:"m",p:3200}],
+  "Luminarias":[{n:"Inst. plafón LED",u:"u",p:8000},{n:"Inst. reflector",u:"u",p:12000},{n:"Inst. tira LED",u:"m",p:5000},{n:"Inst. luminaria emergencia",u:"u",p:15000}],
+  "Tableros":[{n:"Armado tablero domiciliario",u:"u",p:45000},{n:"Armado tablero trifásico",u:"u",p:80000},{n:"Reemplazo llaves tablero",u:"u",p:20000}],
+  "Emergencias":[{n:"Urgencia nocturna",u:"u",p:60000},{n:"Urgencia fin de semana",u:"u",p:80000}],
+  "Proyecto":[{n:"Plano eléctrico",u:"u",p:90000},{n:"Memoria técnica",u:"u",p:60000},{n:"Relevamiento",u:"u",p:35000}],
+  "Puesta a Tierra":[{n:"Inst. jabalina",u:"u",p:40000},{n:"Inst. puesta a tierra completa",u:"u",p:95000},{n:"Medición resistencia",u:"u",p:25000}]
+};
+// moData es la versión mutable de MO_DEF (puede ser reemplazada por importación Excel)
+let moData=JSON.parse(JSON.stringify(MO_DEF));
+const THEMES=[
+  {id:'',name:'Verde',desc:'Oscuro · Verde neón',color:'#00e600'},
+  {id:'theme-blue',name:'Azul',desc:'Oscuro · Azul eléctrico',color:'#2979ff'},
+  {id:'theme-orange',name:'Naranja',desc:'Oscuro · Naranja',color:'#ff6d00'},
+  {id:'theme-purple',name:'Violeta',desc:'Oscuro · Violeta',color:'#aa00ff'},
+  {id:'theme-red',name:'Rojo',desc:'Oscuro · Rojo',color:'#f44336'},
+  {id:'theme-cyan',name:'Cyan',desc:'Oscuro · Cyan',color:'#00bcd4'},
+  {id:'theme-light',name:'Claro',desc:'Fondo claro · Verde',color:'#00b300'}
+];
+
+// ===== STATE =====
+let matsPrecios=JSON.parse(JSON.stringify(MATS_DEF));
+let moPrecios={};
+function rebuildMoPrecios(){
+  Object.entries(moData).forEach(([c,items])=>items.forEach((it,i)=>{
+    const key=c+'::'+i;
+    if(!(key in moPrecios)) moPrecios[key]=it.p;
+  }));
+}
+rebuildMoPrecios();
+let matsQty={},moQty={},moCustom=[];
+let viaticoOn=true,tipoSel=null;
+let historial=[],clientes=[],agenda=[];
+let perfil={nombre:'',tel:'',email:'',matricula:''};
+let logoUrl='',logoNombre='';
+let currentTheme='',currentThemeName='Verde';
+let p3Cat='Cables',p4Cat='Básicos',precCat='Cables';
+let vistaEditingHist=null;
+
+const fmtN=n=>'$'+Math.round(n).toLocaleString('es-AR');
+
+// ===== NAV =====
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='s-home') updateHome();
+  if(id==='s-historial') renderHistorial();
+  if(id==='s-clientes') renderClientes();
+  if(id==='s-precios') initPrecios();
+  if(id==='s-paso3') initPaso3();
+  if(id==='s-paso4') initPaso4();
+  if(id==='s-temas') renderTemas();
+  if(id==='s-logo') initLogoScreen();
+  if(id==='s-perfil') initPerfil();
+  if(id==='s-agenda') renderAgenda();
+}
+
+function updateHome(){
+  document.getElementById('hist-count-home').textContent=historial.length+' guardados';
+  document.getElementById('cli-count-home').textContent=clientes.length+' guardados';
+  const n=historial.length;
+  document.getElementById('home-prog-label').textContent=n+(n===1?' presupuesto guardado':' presupuestos guardados');
+  const name=perfil.nombre||logoNombre||'';
+  document.getElementById('home-greeting').textContent=name?'Hola, '+name+' !':'Hola !';
+  const area=document.getElementById('home-logo-area');
+  if(logoUrl) area.innerHTML='<img src="'+logoUrl+'" class="company-logo-img" alt="logo"/>';
+  else { const txt=logoNombre||perfil.nombre||''; area.innerHTML=txt?'<span class="company-name-text">'+txt+'</span>':''; }
+}
+
+// ===== PASO 1 =====
+function iniciarNuevo(){
+  vistaEditingHist=null;
+  go('s-paso1');
+}
+function irPaso2(){
+  if(!document.getElementById('p1-cliente').value.trim()){document.getElementById('p1-cliente').style.borderColor='var(--red)';document.getElementById('p1-cliente').focus();return;}
+  document.getElementById('p1-cliente').style.borderColor='';
+  go('s-paso2');
+}
+function abrirCliModal(){
+  if(!clientes.length){alert('No hay clientes guardados.');return;}
+  document.getElementById('modal-cli-lista').innerHTML=clientes.map((c,i)=>
+    '<div style="padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;" onclick="elegirCli('+i+')"><div style="font-size:15px;font-weight:600;color:var(--text)">'+c.nombre+'</div>'+(c.dni?'<div style="font-size:12px;color:var(--text4)">DNI: '+c.dni+'</div>':'')+'</div>'
+  ).join('');
+  document.getElementById('modal-cli').style.display='flex';
+}
+function elegirCli(i){
+  const c=clientes[i];
+  document.getElementById('p1-cliente').value=c.nombre;
+  document.getElementById('p1-dni').value=c.dni||'';
+  document.getElementById('p1-dir').value=c.dir||'';
+  cerrarModals();
+}
+
+// ===== PASO 2 =====
+function selTipo(el){
+  document.querySelectorAll('#p2-opciones .radio').forEach(r=>r.classList.remove('sel'));
+  el.querySelector('.radio').classList.add('sel');
+  tipoSel=el.dataset.val;
+  document.getElementById('p2-continuar').disabled=false;
+}
+function toggleViatico(){
+  viaticoOn=!viaticoOn;
+  const btn=document.getElementById('p2-noinc-btn');
+  const row=document.getElementById('p2-precio-row');
+  btn.textContent=viaticoOn?'No incluir':'Incluir';
+  btn.style.color=viaticoOn?'var(--accent)':'var(--text4)';
+  row.style.opacity=viaticoOn?'1':'0.3';
+  row.style.pointerEvents=viaticoOn?'auto':'none';
+}
+
+// ===== PASO 3 =====
+function initPaso3(){
+  const el=document.getElementById('p3-cats');
+  el.innerHTML='';
+  Object.keys(matsPrecios).forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cat-btn'+(c===p3Cat?' active':'');
+    b.textContent=c;
+    b.onclick=()=>{p3Cat=c;el.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderP3();};
+    el.appendChild(b);
+  });
+  renderP3();
+}
+function renderP3(){
+  const lista=document.getElementById('p3-lista');
+  lista.innerHTML='';
+  matsPrecios[p3Cat].forEach((it,i)=>{
+    const key=p3Cat+'::'+i,q=matsQty[key]||0;
+    const d=document.createElement('div');
+    d.className='item-row';
+    d.innerHTML='<div><div class="item-name">'+it.n+'</div><div class="item-sub">'+fmtN(it.p)+' / '+it.u+'</div></div>'
+      +'<div class="qty-ctrl"><button class="qty-btn" onclick="chgMQ(\''+p3Cat+'\','+i+',-1)">-</button>'
+      +'<span class="qty-val'+(q>0?' nz':'')+'" id="p3v-'+p3Cat+'-'+i+'">'+q+'</span>'
+      +'<button class="qty-btn" onclick="chgMQ(\''+p3Cat+'\','+i+',1)">+</button></div>';
+    lista.appendChild(d);
+  });
+}
+function chgMQ(cat,idx,d){
+  const key=cat+'::'+idx;
+  matsQty[key]=Math.max(0,(matsQty[key]||0)+d);
+  const el=document.getElementById('p3v-'+cat+'-'+idx);
+  if(el){el.textContent=matsQty[key];el.className='qty-val'+(matsQty[key]>0?' nz':'');}
+  let t=0;Object.entries(matsQty).forEach(([k,q])=>{if(!q)return;const[c,i]=k.split('::');const it=matsPrecios[c]&&matsPrecios[c][+i];if(it)t+=it.p*q;});
+  document.getElementById('p3-total').textContent=fmtN(t);
+}
+
+// ===== PASO 4 =====
+function initPaso4(){
+  const el=document.getElementById('p4-cats');
+  el.innerHTML='';
+  Object.keys(moData).forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cat-btn'+(c===p4Cat?' active':'');
+    b.textContent=c;
+    b.onclick=()=>{p4Cat=c;el.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderP4();};
+    el.appendChild(b);
+  });
+  renderP4();
+}
+function renderP4(){
+  const lista=document.getElementById('p4-lista');
+  lista.innerHTML='';
+  // Add custom task button
+  const addB=document.createElement('button');
+  addB.className='add-task-btn';
+  addB.innerHTML='<i class="ti ti-plus-circle"></i> Agregar tarea personalizada';
+  addB.onclick=()=>{document.getElementById('mo-desc').value='';document.getElementById('mo-precio').value='';document.getElementById('mo-qty').value='1';document.getElementById('modal-mo').style.display='flex';};
+  lista.appendChild(addB);
+  // Custom tasks
+  moCustom.forEach((it,i)=>{
+    const d=document.createElement('div');
+    d.className='item-row';
+    d.style.background='color-mix(in srgb, var(--accent) 8%, var(--bg))';
+    d.innerHTML='<div><div class="item-name" style="color:var(--accent)">'+it.n+' <span style="font-size:11px;color:var(--text4);font-weight:400;">personalizada</span></div><div class="item-sub">'+fmtN(it.p)+' · x'+it.q+' = '+fmtN(it.p*it.q)+'</div></div>'
+      +'<button class="btn-sm danger" onclick="elimCustom('+i+')"><i class="ti ti-trash"></i></button>';
+    lista.appendChild(d);
+  });
+  // Standard tasks
+  (moData[p4Cat]||[]).forEach((it,i)=>{
+    const key=p4Cat+'::'+i,q=moQty[key]||0,p=moPrecios[key]||it.p;
+    const d=document.createElement('div');
+    d.className='item-row';
+    d.innerHTML='<div style="display:flex;flex-direction:column;gap:6px;">'
+      +'<div class="item-name">'+it.n+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;"><span class="signo">$</span>'
+      +'<input class="mo-price-inp" type="number" value="'+p+'" oninput="chgMP(\''+p4Cat+'\','+i+',+this.value)"/>'
+      +(it.u?'<span style="font-size:12px;color:var(--text4);">/ '+it.u+'</span>':'')
+      +'</div></div>'
+      +'<div class="qty-ctrl"><button class="qty-btn" onclick="chgMOQ(\''+p4Cat+'\','+i+',-1)">-</button>'
+      +'<span class="qty-val'+(q>0?' nz':'')+'" id="p4v-'+p4Cat+'-'+i+'">'+q+'</span>'
+      +'<button class="qty-btn" onclick="chgMOQ(\''+p4Cat+'\','+i+',1)">+</button></div>';
+    lista.appendChild(d);
+  });
+}
+function chgMP(cat,idx,v){moPrecios[cat+'::'+idx]=v;updP4();}
+function chgMOQ(cat,idx,d){
+  const key=cat+'::'+idx;
+  moQty[key]=Math.max(0,(moQty[key]||0)+d);
+  const el=document.getElementById('p4v-'+cat+'-'+idx);
+  if(el){el.textContent=moQty[key];el.className='qty-val'+(moQty[key]>0?' nz':'');}
+  updP4();
+}
+function elimCustom(i){moCustom.splice(i,1);renderP4();updP4();}
+function updP4(){
+  let t=0;
+  Object.entries(moQty).forEach(([k,q])=>{if(q)t+=(moPrecios[k]||0)*q;});
+  moCustom.forEach(it=>t+=it.p*it.q);
+  document.getElementById('p4-total').textContent=fmtN(t);
+}
+function confirmarMO(){
+  const desc=document.getElementById('mo-desc').value.trim();
+  const precio=+document.getElementById('mo-precio').value;
+  const qty=Math.max(1,+document.getElementById('mo-qty').value||1);
+  if(!desc||!precio){alert('Completá descripción y precio.');return;}
+  moCustom.push({n:desc,p:precio,q:qty});
+  cerrarModals();renderP4();updP4();
+}
+
+// ===== VISTA PREVIA =====
+function buildDocHTML(data){
+  const ac=getComputedStyle(document.body).getPropertyValue('--accent').trim()||'#00e600';
+  let logoH=logoUrl?'<img src="'+logoUrl+'" class="doc-company-img" alt="logo"/>'
+    :'<span class="doc-company-name">'+(logoNombre||perfil.nombre||'')+'</span>';
+  let matItems=[],matT=0;
+  Object.entries(data.matsQty||{}).forEach(([k,q])=>{
+    if(!q)return;const[cat,idx]=k.split('::');const it=matsPrecios[cat]&&matsPrecios[cat][+idx];
+    if(it){const s=it.p*q;matT+=s;matItems.push({n:it.n,q,s});}
+  });
+  let moItems=[],moT=0;
+  Object.entries(data.moQty||{}).forEach(([k,q])=>{
+    if(!q)return;const p=moPrecios[k]||0;const[cat,idx]=k.split('::');const it=moData[cat]&&moData[cat][+idx];
+    if(it){const s=p*q;moT+=s;moItems.push({n:it.n,q,s});}
+  });
+  (data.moCustom||[]).forEach(it=>{moT+=it.p*it.q;moItems.push({n:it.n+' *',q:it.q,s:it.p*it.q});});
+  const viat=data.viaticoOn?+(data.viatico||0):0;
+  const total=matT+moT+viat;
+  const fecha=new Date().toLocaleDateString('es-AR');
+  let h='<div class="doc">'
+    +'<div class="doc-head" style="border-bottom-color:'+ac+';">'
+    +'<div class="doc-logo-area">'+logoH+'<span class="doc-presup-lbl">Presupuesto</span></div>'
+    +'<div class="doc-date">'+fecha+'</div></div>'
+    +'<div class="doc-parties">'
+    +'<div><div class="party-lbl">Profesional</div><div class="party-name">'+(perfil.nombre||'—')+'</div>'+(perfil.matricula?'<div style="font-size:11px;color:#aaa;">Mat: '+perfil.matricula+'</div>':'')+'</div>'
+    +'<div><div class="party-lbl">Cliente</div><div class="party-name">'+data.cliente+'</div></div></div>'
+    +'<div><span class="doc-tipo" style="border-color:'+ac+';color:'+ac+';">'+data.tipo+'</span></div>';
+  if(matItems.length){
+    h+='<div class="doc-sec">Materiales</div>';
+    matItems.forEach(it=>{h+='<div class="doc-line"><span>'+it.n+' <span class="doc-qty">x'+it.q+'</span></span><span>'+fmtN(it.s)+'</span></div>';});
+    h+='<div class="doc-subtot"><span>Subtotal materiales</span><span>'+fmtN(matT)+'</span></div>';
+  }
+  if(moItems.length){
+    h+='<div class="doc-sec" style="margin-top:4px;">Mano de obra</div>';
+    moItems.forEach(it=>{h+='<div class="doc-line"><span>'+it.n+' <span class="doc-qty">x'+it.q+'</span></span><span>'+fmtN(it.s)+'</span></div>';});
+    h+='<div class="doc-subtot"><span>Subtotal mano de obra</span><span>'+fmtN(moT)+'</span></div>';
+  }
+  if(viat>0)h+='<div class="doc-line"><span>Visita / Viatico</span><span>'+fmtN(viat)+'</span></div>';
+  if(data.detalle)h+='<div style="padding:8px 18px;font-size:12px;color:#888;border-top:1px solid #eee;font-style:italic;">'+data.detalle+'</div>';
+  h+='<div class="doc-total-bar" style="background:'+ac+';"><span class="doc-total-lbl">TOTAL</span><span class="doc-total-amt">'+fmtN(total)+'</span></div>'
+    +'<div class="doc-valido">Válido 15 días</div></div>';
+  return {html:h,total};
+}
+
+function capturaData(){
+  return{
+    cliente:document.getElementById('p1-cliente').value||'—',
+    tipo:tipoSel||'—',
+    matsQty:JSON.parse(JSON.stringify(matsQty)),
+    moQty:JSON.parse(JSON.stringify(moQty)),
+    moCustom:JSON.parse(JSON.stringify(moCustom)),
+    viaticoOn,viatico:+document.getElementById('p2-viatico').value,
+    detalle:document.getElementById('p2-detalle').value.trim()
+  };
+}
+
+function generarVista(){
+  const data=capturaData();
+  const{html}=buildDocHTML(data);
+  document.getElementById('doc-wrap').innerHTML=html;
+  document.getElementById('vista-back-btn').onclick=()=>go('s-paso4');
+  document.getElementById('guardar-btn').style.display='';
+  document.getElementById('guardar-btn').textContent='Guardar en historial';
+  document.getElementById('guardar-btn').onclick=()=>guardarHistorial(data,null);
+  vistaEditingHist=null;
+  go('s-vista');
+}
+
+function editarDesdeVista(){go('s-paso1');}
+
+function guardarHistorial(data,histRef){
+  if(!data)data=capturaData();
+  const{total}=buildDocHTML(data);
+  data.total=total;
+  data.fecha=new Date().toLocaleDateString('es-AR');
+  if(histRef!==null&&histRef!==undefined){
+    const idx=historial.indexOf(histRef);
+    if(idx>-1){historial[idx]=data;guardarStorage();}
+  } else {
+    historial.unshift(data);
+    guardarStorage();
+    const cli=data.cliente;
+    if(cli&&cli!=='—'&&!clientes.find(c=>c.nombre===cli)){
+      const dni=document.getElementById('p1-dni').value||'';
+      const dir=document.getElementById('p1-dir').value||'';
+      clientes.push({nombre:cli,dni,dir});
+      guardarStorage();
+    }
+  }
+  resetPres();
+  go('s-historial');
+}
+
+function resetPres(){
+  matsQty={};moQty={};moCustom=[];tipoSel=null;viaticoOn=true;
+  document.getElementById('p1-cliente').value='';
+  document.getElementById('p1-dni').value='';
+  document.getElementById('p1-dir').value='';
+  document.getElementById('p2-continuar').disabled=true;
+  document.getElementById('p2-noinc-btn').textContent='No incluir';
+  document.getElementById('p2-noinc-btn').style.color='var(--accent)';
+  document.getElementById('p2-precio-row').style.opacity='1';
+  document.getElementById('p2-precio-row').style.pointerEvents='auto';
+  document.getElementById('p2-detalle').value='';
+  document.querySelectorAll('#p2-opciones .radio').forEach(r=>r.classList.remove('sel'));
+  p3Cat='Cables';p4Cat='Básicos';vistaEditingHist=null;
+}
+
+// ===== HISTORIAL =====
+function renderHistorial(){
+  const lista=document.getElementById('hist-lista');
+  const q=(document.getElementById('hist-search')?.value||'').toLowerCase().trim();
+  const filtrado=q?historial.filter(h=>(h.cliente||'').toLowerCase().includes(q)):historial;
+  document.getElementById('hist-count-top').textContent=(q?filtrado.length+'/':'')+historial.length+' guardados';
+  if(!historial.length){lista.innerHTML='<div class="empty-state"><i class="ti ti-file-off"></i><p>No hay presupuestos guardados</p></div>';return;}
+  if(!filtrado.length){lista.innerHTML='<div class="empty-state"><i class="ti ti-user-search"></i><p>Sin resultados para "'+q+'"</p></div>';return;}
+  lista.innerHTML=filtrado.map((h)=>{
+    const i=historial.indexOf(h);
+    const estado=h.estado||'pendiente';
+    const esAprobado=estado==='aprobado';
+    return '<div class="hist-card" onclick="verHist('+i+')">'
+    +'<div class="hist-top"><div><div class="hist-name">'+h.cliente+'</div><div class="hist-date">'+h.fecha+'</div></div>'
+    +'<div class="hist-amount">'+fmtN(h.total||0)+'</div></div>'
+    +'<div class="hist-bottom"><span class="hist-tipo">'+h.tipo+'</span>'
+    +'<div style="display:flex;gap:6px;align-items:center;">'
+    +'<span class="estado-badge '+(esAprobado?'aprobado':'pendiente')+'">'+(esAprobado?'✓ Aprobado':'Pendiente')+'</span>'
+    +'<button class="btn-sm" onclick="event.stopPropagation();toggleEstado('+i+')" title="Cambiar estado"><i class="ti ti-refresh"></i></button>'
+    +'<button class="btn-sm" onclick="event.stopPropagation();editarHist('+i+')"><i class="ti ti-edit"></i></button>'
+    +'<button class="btn-sm danger" onclick="event.stopPropagation();elimHist('+i+')"><i class="ti ti-trash"></i></button>'
+    +'</div></div></div>';
+  }).join('');
+}
+
+function verHist(i){
+  const h=historial[i];
+  const{html}=buildDocHTML(h);
+  document.getElementById('doc-wrap').innerHTML=html;
+  document.getElementById('vista-back-btn').onclick=()=>go('s-historial');
+  document.getElementById('guardar-btn').style.display='none';
+  document.getElementById('vista-edit-btn').onclick=()=>editarHist(i);
+  go('s-vista');
+}
+
+function editarHist(i){
+  const h=historial[i];
+  // Cargar todo el estado
+  document.getElementById('p1-cliente').value=h.cliente||'';
+  document.getElementById('p1-dni').value='';
+  document.getElementById('p1-dir').value='';
+  matsQty=JSON.parse(JSON.stringify(h.matsQty||{}));
+  moQty=JSON.parse(JSON.stringify(h.moQty||{}));
+  moCustom=JSON.parse(JSON.stringify(h.moCustom||[]));
+  viaticoOn=h.viaticoOn!==undefined?h.viaticoOn:true;
+  document.getElementById('p2-viatico').value=h.viatico||3500;
+  document.getElementById('p2-detalle').value=h.detalle||'';
+  tipoSel=h.tipo||null;
+  document.querySelectorAll('#p2-opciones .radio').forEach(r=>r.classList.remove('sel'));
+  document.querySelectorAll('#p2-opciones .option-row').forEach(r=>{if(r.dataset.val===tipoSel)r.querySelector('.radio').classList.add('sel');});
+  if(tipoSel)document.getElementById('p2-continuar').disabled=false;
+  document.getElementById('p2-noinc-btn').textContent=viaticoOn?'No incluir':'Incluir';
+  document.getElementById('p2-noinc-btn').style.color=viaticoOn?'var(--accent)':'var(--text4)';
+  document.getElementById('p2-precio-row').style.opacity=viaticoOn?'1':'0.3';
+  document.getElementById('p2-precio-row').style.pointerEvents=viaticoOn?'auto':'none';
+  vistaEditingHist=h;
+  // Mostrar en vista previa con botón guardar cambios
+  const{html}=buildDocHTML(h);
+  document.getElementById('doc-wrap').innerHTML=html;
+  document.getElementById('vista-back-btn').onclick=()=>go('s-historial');
+  document.getElementById('guardar-btn').style.display='';
+  document.getElementById('guardar-btn').textContent='Guardar cambios';
+  document.getElementById('guardar-btn').onclick=()=>guardarHistorial(capturaData(),h);
+  document.getElementById('vista-edit-btn').onclick=()=>go('s-paso1');
+  go('s-vista');
+}
+
+function elimHist(i){if(confirm('Eliminar este presupuesto?')){historial.splice(i,1);guardarStorage();renderHistorial();updateHome();}}
+
+function toggleEstado(i){
+  const h=historial[i];
+  h.estado=(h.estado==='aprobado')?'pendiente':'aprobado';
+  guardarStorage();renderHistorial();
+}
+
+function compartirPDF(){window.print();}
+function compartirWA(){
+  const doc=document.querySelector('.doc');
+  if(!doc)return;
+  window.open('https://wa.me/?text='+encodeURIComponent(doc.innerText.replace(/\n+/g,'\n').trim()),'_blank');
+}
+
+// ===== CLIENTES =====
+function renderClientes(){
+  const lista=document.getElementById('cli-lista');
+  if(!clientes.length){lista.innerHTML='<div class="empty-state"><i class="ti ti-users"></i><p>No hay clientes guardados</p></div>';return;}
+  lista.innerHTML=clientes.map((c,i)=>
+    '<div class="hist-card"><div class="hist-top">'
+    +'<div><div class="hist-name">'+c.nombre+'</div>'+(c.dni?'<div class="hist-date">DNI: '+c.dni+'</div>':'')+(c.dir?'<div class="hist-date">'+c.dir+'</div>':'')+'</div>'
+    +'<button class="btn-sm danger" onclick="elimCli('+i+')"><i class="ti ti-trash"></i></button>'
+    +'</div></div>'
+  ).join('');
+}
+function addCliente(){
+  const n=prompt('Nombre del cliente:');if(!n||!n.trim())return;
+  const dni=prompt('DNI (Enter para omitir):')||'';
+  const dir=prompt('Dirección (Enter para omitir):')||'';
+  clientes.push({nombre:n.trim(),dni,dir});guardarStorage();renderClientes();updateHome();
+}
+function elimCli(i){if(confirm('Eliminar cliente?')){clientes.splice(i,1);guardarStorage();renderClientes();updateHome();}}
+
+// ===== PRECIOS =====
+function initPrecios(){
+  const cats=Object.keys(matsPrecios);
+  if(!cats.length)return;
+  // Si la categoría activa no existe en el nuevo set, usar la primera
+  if(!matsPrecios[precCat]) precCat=cats[0];
+  const el=document.getElementById('prec-cats');
+  el.innerHTML='';
+  cats.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cat-btn'+(c===precCat?' active':'');
+    b.textContent=c;
+    b.onclick=()=>{precCat=c;el.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderPrecios();};
+    el.appendChild(b);
+  });
+  renderPrecios();
+}
+function renderPrecios(){
+  const q=(document.getElementById('prec-search').value||'').toLowerCase();
+  const lista=document.getElementById('prec-lista');
+  lista.innerHTML='';
+  const items=matsPrecios[precCat];
+  if(!items){lista.innerHTML='<div class="empty-state"><p>Categoría no encontrada</p></div>';return;}
+  items.forEach((it,i)=>{
+    if(q&&!it.n.toLowerCase().includes(q))return;
+    const def=(MATS_DEF[precCat]&&MATS_DEF[precCat][i])?MATS_DEF[precCat][i].p:it.p;
+    const mod=it.p!==def;
+    const d=document.createElement('div');
+    d.className='item-row';
+    d.innerHTML='<div><div class="item-name"'+(mod?' style="color:var(--accent);"':'')+'>'+it.n+'</div>'
+      +'<div class="item-sub">'+it.u+(mod?' · orig $'+def.toLocaleString('es-AR'):'')+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:6px;"><span class="signo">$</span>'
+      +'<input class="price-edit-inp" type="number" value="'+it.p+'" oninput="chgPrec(\''+precCat+'\','+i+',+this.value)"/></div>';
+    lista.appendChild(d);
+  });
+  contarMods();
+}
+function chgPrec(cat,idx,v){matsPrecios[cat][idx].p=v;contarMods();guardarStorage();}
+function contarMods(){
+  let c=0;
+  Object.entries(matsPrecios).forEach(([cat,items])=>items.forEach((it,i)=>{if(it.p!==(MATS_DEF[cat][i]?.p||it.p))c++;}));
+  document.getElementById('prec-mod-lbl').textContent=c+' modificados';
+}
+function restaurarPrecios(){if(confirm('Restaurar todos los precios?')){matsPrecios=JSON.parse(JSON.stringify(MATS_DEF));guardarStorage();renderPrecios();}}
+
+function exportarXLS(){
+  const wb=XLSX.utils.book_new();
+
+  // Hoja 1: Materiales
+  const matRows=[['Categoría','Material','Unidad','Precio']];
+  Object.entries(matsPrecios).forEach(([cat,items])=>{
+    items.forEach(it=>matRows.push([cat,it.n,it.u,it.p]));
+  });
+  const wsMat=XLSX.utils.aoa_to_sheet(matRows);
+  wsMat['!cols']=[{wch:16},{wch:32},{wch:10},{wch:14}];
+  // Estilo encabezado (solo XLSX lo soporta via SheetJS CE con cellStyles)
+  XLSX.utils.book_append_sheet(wb,wsMat,'Materiales');
+
+  // Hoja 2: Mano de Obra
+  const moRows=[['Categoría','Descripción','Unidad','Precio']];
+  Object.entries(moData).forEach(([cat,items])=>{
+    items.forEach(it=>moRows.push([cat,it.n,it.u,it.p]));
+  });
+  const wsMo=XLSX.utils.aoa_to_sheet(moRows);
+  wsMo['!cols']=[{wch:18},{wch:34},{wch:10},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,wsMo,'Mano de Obra');
+
+  const fecha=new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb,'precios_materiales_'+fecha+'.xlsx');
+}
+
+function importarXLS(inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+
+      // Procesar hoja Materiales
+      const wsMat=wb.Sheets['Materiales'];
+      if(!wsMat){alert('Hojas encontradas: '+wb.SheetNames.join(', ')+'\n\nNo se encontró "Materiales". Verificá el nombre exacto.');inp.value='';return;}
+      const matData=XLSX.utils.sheet_to_json(wsMat,{header:1,defval:''});
+      // matData[0] = encabezados, saltar
+      const nuevoMats={};
+      let ultimaCat='';
+      matData.slice(1).forEach(row=>{
+        if(!row||!row.length)return;
+        // Celda de categoría: si existe y no está vacía, actualizamos ultimaCat
+        const catRaw=row[0]!=null?String(row[0]).trim():'';
+        if(catRaw!=='') ultimaCat=catRaw;
+        const cat=ultimaCat;
+        const nombre=row[1]!=null?String(row[1]).trim():'';
+        const unidad=row[2]!=null?String(row[2]).trim():'';
+        const precio=row[3]!=null&&row[3]!==''?parseFloat(String(row[3]).replace(',','.')):0;
+        if(!cat||!nombre)return;
+        if(!nuevoMats[cat])nuevoMats[cat]=[];
+        nuevoMats[cat].push({n:nombre,u:unidad||'u',p:isNaN(precio)?0:precio});
+      });
+
+      if(!Object.keys(nuevoMats).length){alert('La hoja "Materiales" no tiene filas válidas.');inp.value='';return;}
+
+      // Confirmar reemplazo
+      const totalItems=Object.values(nuevoMats).reduce((s,a)=>s+a.length,0);
+      if(!confirm('¿Reemplazar lista de materiales con el archivo importado?\n\n'+Object.keys(nuevoMats).length+' categorías · '+totalItems+' ítems\n\nEsta acción sobreescribirá los precios actuales.'))
+        {inp.value='';return;}
+
+      matsPrecios=nuevoMats;
+
+      // Procesar hoja Mano de Obra (opcional)
+      const wsMo=wb.Sheets['Mano de Obra'];
+      let moMsg='';
+      if(wsMo){
+        const moRawData=XLSX.utils.sheet_to_json(wsMo,{header:1,defval:''});
+        const nuevoMo={};
+        let ultimaCatMo='';
+        moRawData.slice(1).forEach(row=>{
+          if(!row||!row.length)return;
+          const catRaw=row[0]!=null?String(row[0]).trim():'';
+          if(catRaw!=='') ultimaCatMo=catRaw;
+          const cat=ultimaCatMo;
+          const nombre=row[1]!=null?String(row[1]).trim():'';
+          const unidad=row[2]!=null?String(row[2]).trim():'';
+          const precio=row[3]!=null&&row[3]!==''?parseFloat(String(row[3]).replace(',','.')):0;
+          if(!cat||!nombre)return;
+          if(!nuevoMo[cat])nuevoMo[cat]=[];
+          nuevoMo[cat].push({n:nombre,u:unidad||'',p:isNaN(precio)?0:precio});
+        });
+        if(Object.keys(nuevoMo).length){
+          moData=nuevoMo;
+          moPrecios={};rebuildMoPrecios();
+          const moTotal=Object.values(nuevoMo).reduce((s,a)=>s+a.length,0);
+          moMsg='\n✓ Mano de Obra importada: '+moTotal+' ítems en '+Object.keys(nuevoMo).length+' categorías.';
+        }
+      }
+
+      guardarStorage();
+      initPrecios();
+      inp.value='';
+      alert('✓ Materiales importados: '+totalItems+' ítems en '+Object.keys(nuevoMats).length+' categorías.'+moMsg);
+    }catch(err){alert('Error al leer el archivo: '+err.message);inp.value='';}
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ===== PERFIL =====
+function initPerfil(){
+  document.getElementById('perf-nombre').value=perfil.nombre;
+  document.getElementById('perf-tel').value=perfil.tel;
+  document.getElementById('perf-email').value=perfil.email;
+  document.getElementById('perf-matricula').value=perfil.matricula||'';
+}
+function guardarPerfil(){
+  perfil.nombre=document.getElementById('perf-nombre').value.trim();
+  perfil.tel=document.getElementById('perf-tel').value.trim();
+  perfil.email=document.getElementById('perf-email').value.trim();
+  perfil.matricula=document.getElementById('perf-matricula').value.trim();
+  guardarStorage();go('s-config');updateHome();
+}
+
+// ===== LOGO =====
+function initLogoScreen(){
+  document.getElementById('logo-nombre-inp').value=logoNombre;
+  if(logoUrl){
+    document.getElementById('logo-prev-img').src=logoUrl;
+    document.getElementById('logo-prev-img').style.display='block';
+    document.getElementById('logo-upload-icon').style.display='none';
+    document.getElementById('logo-remove-btn').style.display='inline-flex';
+  } else {
+    document.getElementById('logo-prev-img').style.display='none';
+    document.getElementById('logo-upload-icon').style.display='block';
+    document.getElementById('logo-remove-btn').style.display='none';
+  }
+}
+function onLogoFile(inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    logoUrl=e.target.result;
+    document.getElementById('logo-prev-img').src=logoUrl;
+    document.getElementById('logo-prev-img').style.display='block';
+    document.getElementById('logo-upload-icon').style.display='none';
+    document.getElementById('logo-remove-btn').style.display='inline-flex';
+  };
+  reader.readAsDataURL(file);
+}
+function quitarLogo(){
+  logoUrl='';
+  document.getElementById('logo-prev-img').style.display='none';
+  document.getElementById('logo-upload-icon').style.display='block';
+  document.getElementById('logo-remove-btn').style.display='none';
+  document.getElementById('logo-file').value='';
+}
+function guardarLogo(){
+  logoNombre=document.getElementById('logo-nombre-inp').value.trim();
+  guardarStorage();go('s-config');updateHome();
+}
+
+// ===== TEMAS =====
+function renderTemas(){
+  document.getElementById('temas-lista').innerHTML=THEMES.map(t=>
+    '<div class="theme-row" onclick="aplicarTema(\''+t.id+'\',\''+t.name+'\')">'
+    +'<div><div style="font-size:15px;color:var(--text);font-weight:600;">'+t.name+'</div><div style="font-size:12px;color:var(--text3);">'+t.desc+'</div></div>'
+    +'<div class="swatch'+(currentTheme===t.id?' sel':'')+'" style="background:'+t.color+';"></div>'
+    +'</div>'
+  ).join('');
+}
+function aplicarTema(id,name){
+  document.body.className=id;
+  currentTheme=id;currentThemeName=name;
+  document.getElementById('cfg-tema-sub').textContent=name;
+  guardarStorage();renderTemas();
+}
+
+// ===== MODALES =====
+function cerrarModals(){document.querySelectorAll('.modal-ov').forEach(m=>m.style.display='none');}
+
+// ===== PERSISTENCIA =====
+// ===== AGENDA =====
+function renderAgenda(){
+  const lista=document.getElementById('agenda-lista');
+  if(!agenda.length){
+    lista.innerHTML='<div class="empty-state"><i class="ti ti-calendar-off"></i><p>No hay turnos cargados</p></div>';
+    return;
+  }
+  // Ordenar por fecha+hora
+  const sorted=[...agenda].map((t,i)=>({...t,_idx:i})).sort((a,b)=>{
+    const da=new Date(a.fecha+'T'+(a.hora||'00:00'));
+    const db=new Date(b.fecha+'T'+(b.hora||'00:00'));
+    return da-db;
+  });
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  lista.innerHTML=sorted.map(t=>{
+    const dt=new Date(t.fecha+'T'+(t.hora||'00:00'));
+    const vencido=dt<new Date();
+    const fechaStr=new Date(t.fecha+'T12:00:00').toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
+    const horaStr=t.hora||'';
+    const durStr=t.duracion?t.duracion+' min':'';
+    return '<div class="agenda-card'+(vencido?' vencido':'')+'">'
+      +'<div class="agenda-card-top">'
+      +'<div class="agenda-card-cliente">'+t.cliente+'</div>'
+      +'<div class="agenda-card-fecha">'+fechaStr+(horaStr?' · '+horaStr:'')+(durStr?' ('+durStr+')':'')+'</div>'
+      +'</div>'
+      +(t.nota?'<div class="agenda-card-nota"><i class="ti ti-map-pin" style="font-size:11px;"></i> '+t.nota+'</div>':'')
+      +'<div class="agenda-card-actions">'
+      +'<button class="gcal-btn" onclick="abrirGoogleCalendar('+t._idx+')"><i class="ti ti-brand-google"></i> Google Cal</button>'
+      +'<button class="btn-sm" onclick="abrirModalTurno('+t._idx+')"><i class="ti ti-edit"></i></button>'
+      +'<button class="btn-sm danger" onclick="elimTurno('+t._idx+')"><i class="ti ti-trash"></i></button>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function abrirModalTurno(idx){
+  document.getElementById('turno-edit-idx').value=idx;
+  if(idx===-1){
+    document.getElementById('modal-turno-title').textContent='Nuevo turno';
+    document.getElementById('turno-cliente').value='';
+    document.getElementById('turno-fecha').value=new Date().toISOString().slice(0,10);
+    document.getElementById('turno-hora').value='09:00';
+    document.getElementById('turno-duracion').value='60';
+    document.getElementById('turno-nota').value='';
+  } else {
+    const t=agenda[idx];
+    document.getElementById('modal-turno-title').textContent='Editar turno';
+    document.getElementById('turno-cliente').value=t.cliente;
+    document.getElementById('turno-fecha').value=t.fecha;
+    document.getElementById('turno-hora').value=t.hora||'';
+    document.getElementById('turno-duracion').value=t.duracion||'';
+    document.getElementById('turno-nota').value=t.nota||'';
+  }
+  document.getElementById('modal-turno').style.display='flex';
+}
+
+function guardarTurno(){
+  const cliente=document.getElementById('turno-cliente').value.trim();
+  const fecha=document.getElementById('turno-fecha').value;
+  const hora=document.getElementById('turno-hora').value;
+  const duracion=document.getElementById('turno-duracion').value;
+  const nota=document.getElementById('turno-nota').value.trim();
+  const idx=+document.getElementById('turno-edit-idx').value;
+  if(!cliente){alert('Ingresá el nombre del cliente.');return;}
+  if(!fecha){alert('Seleccioná una fecha.');return;}
+  const turno={cliente,fecha,hora,duracion:duracion?+duracion:null,nota};
+  if(idx===-1) agenda.push(turno);
+  else agenda[idx]=turno;
+  guardarStorage();
+  cerrarModals();
+  renderAgenda();
+}
+
+function elimTurno(i){
+  if(confirm('Eliminar este turno?')){agenda.splice(i,1);guardarStorage();renderAgenda();}
+}
+
+function abrirGoogleCalendar(idx){
+  const t=agenda[idx];
+  if(!t.fecha||!t.hora){alert('Este turno no tiene fecha y hora definidas.');return;}
+  // Convertir a formato GCal: YYYYMMDDTHHmmss
+  const start=t.fecha.replace(/-/g,'')+'T'+t.hora.replace(':','')+'00';
+  let end;
+  if(t.duracion){
+    const dt=new Date(t.fecha+'T'+t.hora);
+    dt.setMinutes(dt.getMinutes()+t.duracion);
+    end=dt.toISOString().replace(/[-:]/g,'').slice(0,15);
+  } else {
+    // Duración default 1 hora
+    const dt=new Date(t.fecha+'T'+t.hora);
+    dt.setHours(dt.getHours()+1);
+    end=dt.toISOString().replace(/[-:]/g,'').slice(0,15);
+  }
+  const titulo=encodeURIComponent('Visita: '+t.cliente);
+  const detalle=encodeURIComponent(t.nota||'Turno eléctrico');
+  const url='https://calendar.google.com/calendar/render?action=TEMPLATE'
+    +'&text='+titulo
+    +'&dates='+start+'/'+end
+    +'&details='+detalle
+    +(t.nota?'&location='+encodeURIComponent(t.nota):'');
+  window.open(url,'_blank');
+}
+
+function guardarStorage(){
+  try{
+    localStorage.setItem('pres_historial', JSON.stringify(historial));
+    localStorage.setItem('pres_clientes', JSON.stringify(clientes));
+    localStorage.setItem('pres_perfil', JSON.stringify(perfil));
+    localStorage.setItem('pres_logoUrl', logoUrl||'');
+    localStorage.setItem('pres_logoNombre', logoNombre||'');
+    localStorage.setItem('pres_tema', currentTheme||'');
+    localStorage.setItem('pres_temaNombre', currentThemeName||'Verde');
+    localStorage.setItem('pres_matsPrecios', JSON.stringify(matsPrecios));
+    localStorage.setItem('pres_moData', JSON.stringify(moData));
+    localStorage.setItem('pres_agenda', JSON.stringify(agenda));
+  }catch(e){}
+}
+function cargarStorage(){
+  try{
+    const h=localStorage.getItem('pres_historial'); if(h) historial=JSON.parse(h);
+    const c=localStorage.getItem('pres_clientes'); if(c) clientes=JSON.parse(c);
+    const p=localStorage.getItem('pres_perfil'); if(p) perfil=JSON.parse(p);
+    const lu=localStorage.getItem('pres_logoUrl'); if(lu) logoUrl=lu;
+    const ln=localStorage.getItem('pres_logoNombre'); if(ln) logoNombre=ln;
+    const t=localStorage.getItem('pres_tema'); 
+    const tn=localStorage.getItem('pres_temaNombre');
+    if(t!==null){currentTheme=t;currentThemeName=tn||'Verde';document.body.className=t;if(tn)document.getElementById('cfg-tema-sub').textContent=tn;}
+    const mp=localStorage.getItem('pres_matsPrecios'); if(mp) matsPrecios=JSON.parse(mp);
+    const mo=localStorage.getItem('pres_moData'); if(mo){moData=JSON.parse(mo);moPrecios={};rebuildMoPrecios();}
+    const ag=localStorage.getItem('pres_agenda'); if(ag) agenda=JSON.parse(ag);
+  }catch(e){}
+}
+function exportarDatos(){
+  const datos={historial,clientes,perfil,logoNombre,matsPrecios,exportado:new Date().toLocaleDateString('es-AR'),version:2};
+  const blob=new Blob([JSON.stringify(datos,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  const fecha=new Date().toISOString().slice(0,10);
+  a.download='presupuestos_backup_'+fecha+'.json';
+  a.click();
+}
+
+function importarDatos(inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const datos=JSON.parse(e.target.result);
+      if(!datos||typeof datos!=='object'){alert('Archivo inválido.');return;}
+      const tieneDatos=(datos.historial&&datos.historial.length)||(datos.clientes&&datos.clientes.length)||(datos.perfil&&datos.perfil.nombre);
+      if(!tieneDatos){alert('El archivo no contiene datos reconocibles.');return;}
+      const modo=confirm(
+        'Importar backup del '+( datos.exportado||'fecha desconocida')+'.\n\n'
+        +'¿Qué querés hacer?\n'
+        +'• Aceptar = REEMPLAZAR todo con el backup\n'
+        +'• Cancelar = COMBINAR (agregar sin borrar los actuales)'
+      );
+      if(modo){
+        // Reemplazar todo
+        if(datos.historial) historial=datos.historial;
+        if(datos.clientes) clientes=datos.clientes;
+        if(datos.perfil) perfil=datos.perfil;
+        if(datos.logoNombre) logoNombre=datos.logoNombre;
+        if(datos.matsPrecios) matsPrecios=datos.matsPrecios;
+      } else {
+        // Combinar historial y clientes sin duplicar
+        if(datos.historial){
+          datos.historial.forEach(h=>{
+            const existe=historial.find(x=>x.cliente===h.cliente&&x.fecha===h.fecha&&x.total===h.total);
+            if(!existe) historial.push(h);
+          });
+        }
+        if(datos.clientes){
+          datos.clientes.forEach(c=>{
+            if(!clientes.find(x=>x.nombre===c.nombre)) clientes.push(c);
+          });
+        }
+        if(datos.perfil&&!perfil.nombre) perfil=datos.perfil;
+        if(datos.matsPrecios&&!Object.keys(matsPrecios).length) matsPrecios=datos.matsPrecios;
+      }
+      guardarStorage();
+      updateHome();
+      inp.value='';
+      alert('✓ Importación completada.\n'+historial.length+' presupuestos · '+clientes.length+' clientes.');
+      go('s-config');
+    }catch(err){alert('Error al leer el archivo: '+err.message);}
+  };
+  reader.readAsText(file);
+}
+
+// INIT
+cargarStorage();
+updateHome();
+</script>
+</body>
+</html>
