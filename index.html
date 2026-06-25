@@ -70,29 +70,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .signo{font-size:14px;color:var(--text4);}
 .green-inp{background:var(--bg);border:1.5px solid var(--accent);border-radius:8px;color:var(--accent);font-size:15px;font-weight:700;text-align:right;padding:7px 10px;outline:none;}
 /* HOME */
-.home-logo-area{padding:16px 16px 4px;display:flex;align-items:center;gap:10px;}
-.company-logo-img{max-height:44px;max-width:140px;object-fit:contain;border-radius:6px;}
-.company-name-text{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px;}
-.home-greeting{padding:2px 16px 14px;font-size:14px;color:var(--text3);}
-.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
-.hcard{background:var(--bg2);padding:20px 18px 18px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:filter .12s;}
+.home-logo-area{padding:18px 16px 4px;display:flex;align-items:center;gap:13px;}
+.company-logo-img{max-height:57px;max-width:182px;object-fit:contain;border-radius:6px;}
+.company-name-text{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-0.5px;}
+.home-greeting{padding:2px 16px 16px;font-size:18px;color:var(--text3);}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:2px 4px;}
+.hcard{background:var(--bg2);border-radius:18px;padding:20px 18px 18px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:filter .12s;}
 .hcard:hover{filter:brightness(1.12);}
-.hcard.accent{background:var(--accent);border-radius:18px;margin:2px 1px 0 2px;}
+.hcard.accent{background:var(--accent);border-radius:18px;}
 .hcard.accent .hcard-icon,.hcard.accent .hcard-title,.hcard.accent .hcard-sub{color:#000;}
-.hcard.outline{background:var(--bg2);border:1.5px solid var(--accent);border-radius:18px;margin:2px 2px 0 2px;grid-column:1/-1;}
+.hcard.outline{background:var(--bg2);border:1.5px solid var(--accent);border-radius:18px;grid-column:1/-1;}
 .hcard.outline.half{grid-column:auto;}
 .hcard.outline .hcard-icon,.hcard.outline .hcard-title{color:var(--accent);}
 .hcard-icon{font-size:24px;color:var(--text3);}
 .hcard-title{font-size:20px;font-weight:700;color:var(--text);}
 .hcard-sub{font-size:14px;color:var(--text3);}
-.right-col{display:flex;flex-direction:column;gap:2px;}
-.hcard-sm{background:var(--bg2);padding:16px 18px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;flex:1;transition:filter .12s;}
+.right-col{display:flex;flex-direction:column;gap:6px;}
+.hcard-sm{background:var(--bg2);padding:16px 18px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;flex:1;transition:filter .12s;border-radius:18px;}
 .hcard-sm:hover{filter:brightness(1.12);}
 .hcard-row{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s;}
 .hcard-row:hover{background:var(--bg2);}
 .hcard-row .hcard-icon{font-size:22px;color:var(--accent);margin:0;}
 .home-prog-wrap{padding:14px 16px 16px;}
-.home-prog-label{font-size:13px;color:var(--accent);margin-bottom:8px;}
+.home-prog-label{font-size:17px;font-weight:700;color:var(--accent);margin-bottom:8px;}
 .home-prog-track{background:var(--text5);border-radius:4px;height:5px;}
 .home-prog-fill{background:var(--accent);height:5px;border-radius:4px;transition:width .4s;}
 /* OPTION ROWS */
@@ -148,6 +148,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .estado-badge{font-size:11px;font-weight:700;border-radius:5px;padding:3px 10px;border:1px solid;}
 .estado-badge.pendiente{color:var(--amber);border-color:var(--amber);background:rgba(249,168,37,.1);}
 .estado-badge.aprobado{color:var(--accent);border-color:var(--accent);background:rgba(0,230,0,.08);}
+.estado-badge.rechazado{color:var(--red);border-color:var(--red);background:rgba(226,75,74,.1);}
 /* AGENDA */
 .agenda-card{background:var(--bg2);border-radius:14px;padding:14px 16px;margin:0 12px 10px;border-left:3px solid var(--accent);}
 .agenda-card.vencido{border-left-color:var(--red);opacity:.7;}
@@ -191,39 +192,48 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="screen active" id="s-home">
   <div class="home-logo-area" id="home-logo-area"></div>
   <div class="home-greeting" id="home-greeting">Hola !</div>
+  <div id="alerta-seguimiento" style="display:none;align-items:center;gap:10px;margin:0 4px 6px;background:rgba(249,168,37,.12);border:1px solid var(--amber);border-radius:14px;padding:12px 16px;cursor:pointer;" onclick="go('s-historial')">
+    <i class="ti ti-bell" style="color:var(--amber);font-size:20px;flex-shrink:0;"></i>
+    <span id="alerta-seg-txt" style="font-size:14px;font-weight:600;color:var(--amber);flex:1;"></span>
+    <i class="ti ti-chevron-right" style="color:var(--amber);font-size:16px;"></i>
+  </div>
   <div class="home-grid">
     <div class="hcard accent" onclick="iniciarNuevo()">
-      <div class="hcard-icon"><i class="ti ti-file-plus"></i></div>
-      <div class="hcard-title">Nuevo</div>
-      <div class="hcard-sub">Presupuesto</div>
+      <div class="hcard-icon"><i class="ti ti-circle-plus"></i></div>
+      <div class="hcard-title">Presupuesto</div>
+      <div class="hcard-sub" style="font-weight:400;">Nuevo</div>
     </div>
     <div class="right-col">
       <div class="hcard-sm" onclick="go('s-historial')">
-        <div class="hcard-icon"><i class="ti ti-clock"></i></div>
+        <div class="hcard-icon"><i class="ti ti-history"></i></div>
         <div class="hcard-title">Historial</div>
         <div class="hcard-sub" id="hist-count-home">0 guardados</div>
       </div>
-      <div style="height:2px;background:var(--bg);"></div>
       <div class="hcard-sm" onclick="go('s-config')">
-        <div class="hcard-icon"><i class="ti ti-settings"></i></div>
-        <div class="hcard-title">Configuración</div>
+        <div class="hcard-icon"><i class="ti ti-adjustments-horizontal"></i></div>
+        <div class="hcard-title">Ajustes</div>
         <div class="hcard-sub">Personalizar</div>
       </div>
     </div>
     <div class="hcard outline half" onclick="go('s-precios')">
-      <div class="hcard-icon"><i class="ti ti-currency-dollar"></i></div>
+      <div class="hcard-icon"><i class="ti ti-tag"></i></div>
       <div class="hcard-title">Precios</div>
       <div class="hcard-sub">Materiales</div>
     </div>
     <div class="hcard outline half" onclick="go('s-clientes')">
-      <div class="hcard-icon"><i class="ti ti-users"></i></div>
+      <div class="hcard-icon"><i class="ti ti-address-book"></i></div>
       <div class="hcard-title">Clientes</div>
       <div class="hcard-sub" id="cli-count-home">0 guardados</div>
     </div>
-    <div class="hcard outline" onclick="go('s-agenda')" style="border-color:var(--accent2,#7c4dff);">
+    <div class="hcard outline half" onclick="go('s-agenda')" style="border-color:var(--accent2,#7c4dff);">
       <div class="hcard-icon" style="color:var(--accent2,#7c4dff);"><i class="ti ti-calendar-event"></i></div>
       <div class="hcard-title" style="color:var(--accent2,#7c4dff);">Agenda</div>
       <div class="hcard-sub">Turnos y visitas</div>
+    </div>
+    <div class="hcard outline half" onclick="go('s-notas')" style="border-color:#ff9800;">
+      <div class="hcard-icon" style="color:#ff9800;"><i class="ti ti-notebook"></i></div>
+      <div class="hcard-title" style="color:#ff9800;">Notas</div>
+      <div class="hcard-sub" id="notas-count-home">Ayuda memoria</div>
     </div>
   </div>
   <div class="home-prog-wrap">
@@ -340,11 +350,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div style="flex:1;overflow-y:auto;" id="doc-wrap"></div>
   <div class="footer">
     <div class="btns2">
-      <button class="btn-accent" onclick="compartirPDF()">PDF</button>
-      <button class="btn-accent" onclick="compartirWA()">WhatsApp</button>
+      <button class="btn-accent" onclick="compartirPDF()"><i class="ti ti-file-type-pdf"></i> PDF</button>
+      <button class="btn-accent" onclick="compartirImagen()"><i class="ti ti-photo-share"></i> Imagen</button>
     </div>
-    <button class="btn-gray" id="guardar-btn" onclick="guardarHistorial()">Guardar en historial</button>
+    <div class="btns2" style="border-top:1px solid var(--border);">
+      <button class="btn-accent" style="background:var(--bg3);color:var(--text2);font-size:14px;" onclick="compartirWA()"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
+      <button class="btn-accent" style="background:var(--bg3);color:var(--text2);font-size:14px;" onclick="adjuntarFoto()"><i class="ti ti-camera"></i> Foto obra</button>
+    </div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:2px;">
+      <button class="btn-gray" style="width:56px;border-right:1px solid var(--border2);" onclick="go('s-home')"><i class="ti ti-home"></i></button>
+      <button class="btn-gray" id="guardar-btn" onclick="guardarHistorial()"><i class="ti ti-device-floppy"></i> Guardar en historial</button>
+    </div>
   </div>
+  <input type="file" id="foto-obra-inp" accept="image/*" capture="environment" style="display:none;" onchange="onFotoObra(this)"/>
 </div>
 
 <!-- HISTORIAL -->
@@ -388,6 +406,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="restaurar-btn" onclick="exportarXLS()" title="Exportar a Excel"><i class="ti ti-file-spreadsheet"></i></button>
       <button class="restaurar-btn" onclick="document.getElementById('import-xls').click()" title="Importar desde Excel"><i class="ti ti-upload"></i></button>
       <input type="file" id="import-xls" accept=".xlsx,.xls" style="display:none;" onchange="importarXLS(this)"/>
+      <button class="restaurar-btn" onclick="ajusteMasivoModal()" title="Ajuste por inflación"><i class="ti ti-trending-up"></i> +%</button>
       <button class="restaurar-btn" onclick="restaurarPrecios()">Restaurar</button>
     </div>
   </div>
@@ -426,6 +445,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <i class="ti ti-chevron-right" style="color:var(--text4);"></i>
     </div>
     <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importarDatos(this)"/>
+    <div class="section-label" style="margin-top:8px;">PRESUPUESTOS</div>
+    <div class="config-row" onclick="configurarSeguimiento()">
+      <div class="config-row-left"><i class="ti ti-bell cfg-icon"></i><div><div class="cfg-label">Aviso de seguimiento</div><div class="cfg-sub" id="cfg-seg-sub">A los 7 días sin respuesta</div></div></div>
+      <i class="ti ti-chevron-right" style="color:var(--text4);"></i>
+    </div>
     <div class="section-label" style="margin-top:8px;">APARIENCIA</div>
     <div class="config-row" onclick="go('s-temas')">
       <div class="config-row-left"><i class="ti ti-palette cfg-icon"></i><div><div class="cfg-label">Tema de color</div><div class="cfg-sub" id="cfg-tema-sub">Verde (por defecto)</div></div></div>
@@ -504,6 +528,84 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div style="flex:1;overflow-y:auto;padding-top:10px;" id="agenda-lista"></div>
 </div>
 
+<!-- MODAL AJUSTE MASIVO -->
+<div class="modal-ov" id="modal-ajuste" onclick="cerrarModals()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head"><span>Ajuste por inflación</span><button class="modal-close" onclick="cerrarModals()"><i class="ti ti-x"></i></button></div>
+    <div style="padding:20px 18px;">
+      <div style="font-size:13px;color:var(--text3);margin-bottom:16px;">Aumentá todos los precios de materiales y mano de obra por un porcentaje.</div>
+      <label class="field-label">PORCENTAJE DE AUMENTO</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <input class="field-input" id="ajuste-pct" type="number" min="1" max="999" placeholder="Ej: 15" style="margin-bottom:0;flex:1;"/>
+        <span style="font-size:20px;font-weight:700;color:var(--accent);">%</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <label style="flex:1;display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:10px;padding:12px 14px;cursor:pointer;">
+          <input type="checkbox" id="ajuste-mats" checked style="accent-color:var(--accent);width:18px;height:18px;"/>
+          <span style="font-size:14px;color:var(--text2);">Materiales</span>
+        </label>
+        <label style="flex:1;display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:10px;padding:12px 14px;cursor:pointer;">
+          <input type="checkbox" id="ajuste-mo" checked style="accent-color:var(--accent);width:18px;height:18px;"/>
+          <span style="font-size:14px;color:var(--text2);">Mano de Obra</span>
+        </label>
+      </div>
+      <button class="btn-accent" style="margin-top:16px;border-radius:12px;" onclick="aplicarAjuste()"><i class="ti ti-trending-up"></i> Aplicar aumento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SEGUIMIENTO -->
+<div class="modal-ov" id="modal-seguimiento" onclick="cerrarModals()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head"><span>Aviso de seguimiento</span><button class="modal-close" onclick="cerrarModals()"><i class="ti ti-x"></i></button></div>
+    <div style="padding:20px 18px;">
+      <div style="font-size:13px;color:var(--text3);margin-bottom:16px;">Los presupuestos en estado "Pendiente" mostrarán un aviso después de X días sin respuesta.</div>
+      <label class="field-label">DÍAS HASTA EL AVISO</label>
+      <input class="field-input" id="seg-dias" type="number" min="1" max="90" placeholder="7"/>
+      <button class="btn-accent" style="border-radius:12px;" onclick="guardarSeguimiento()"><i class="ti ti-check"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER FOTO -->
+<div class="modal-ov" id="modal-foto" onclick="cerrarModals()" style="align-items:center;justify-content:center;">
+  <div style="max-width:96vw;max-height:90vh;position:relative;" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="cerrarModals()" style="position:absolute;top:-12px;right:-12px;background:var(--bg2);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;z-index:10;"><i class="ti ti-x"></i></button>
+    <img id="foto-modal-img" src="" style="max-width:96vw;max-height:88vh;border-radius:12px;object-fit:contain;display:block;"/>
+  </div>
+</div>
+
+<!-- NOTAS -->
+<div class="screen" id="s-notas">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="go('s-home')"><i class="ti ti-arrow-left"></i></button>
+      <div class="top-title">Notas técnicas</div>
+    </div>
+    <button class="back-btn" style="background:var(--accent);color:#000;" onclick="abrirModalNota(-1)"><i class="ti ti-plus"></i></button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:10px 12px;" id="notas-lista"></div>
+</div>
+
+<!-- MODAL NOTA -->
+<div class="modal-ov" id="modal-nota" onclick="if(event.target===this)cerrarModals()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-height:90vh;">
+    <div class="modal-head">
+      <span id="modal-nota-title">Nueva nota</span>
+      <button class="modal-close" onclick="cerrarModals()"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="padding:16px 18px 4px;">
+      <label class="field-label">TÍTULO</label>
+      <input class="field-input" id="nota-titulo" type="text" placeholder="Ej: Capacidad de cables por sección"/>
+      <label class="field-label">CONTENIDO</label>
+      <textarea class="detalle-ta" id="nota-contenido" rows="8" placeholder="Escribí tu nota técnica acá...&#10;&#10;Ejemplo:&#10;1,5 mm² → 15A → termomagn. 10A&#10;2,5 mm² → 20A → termomagn. 16A&#10;4 mm² → 25A → termomagn. 20A"></textarea>
+    </div>
+    <div style="padding:0 18px 18px;display:flex;gap:8px;">
+      <button class="btn-accent" style="border-radius:12px;" onclick="guardarNota()"><i class="ti ti-check"></i> Guardar nota</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL TURNO -->
 <div class="modal-ov" id="modal-turno" onclick="cerrarModals()">
   <div class="modal-box" onclick="event.stopPropagation()">
@@ -516,6 +618,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <input class="field-input" style="margin-bottom:0;" id="turno-nota" type="text" placeholder="Nota o dirección (opcional)"/>
       <input type="hidden" id="turno-edit-idx" value="-1"/>
       <button class="next-btn" onclick="guardarTurno()">Guardar turno</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR CLIENTE -->
+<div class="modal-ov" id="modal-edit-cli" onclick="cerrarModals()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head"><span>Editar cliente</span><button class="modal-close" onclick="cerrarModals()"><i class="ti ti-x"></i></button></div>
+    <div style="padding:18px 18px 4px;">
+      <label class="field-label">NOMBRE</label>
+      <input class="field-input" id="edit-cli-nombre" type="text" placeholder="Nombre del cliente"/>
+      <label class="field-label">DNI</label>
+      <input class="field-input" id="edit-cli-dni" type="text" placeholder="Opcional"/>
+      <label class="field-label">DIRECCIÓN</label>
+      <input class="field-input" id="edit-cli-dir" type="text" placeholder="Opcional"/>
+      <label class="field-label">TELÉFONO</label>
+      <input class="field-input" id="edit-cli-tel" type="text" placeholder="Opcional"/>
+    </div>
+    <div style="padding:0 18px 18px;display:flex;gap:8px;">
+      <button class="btn-accent" style="border-radius:12px;" onclick="guardarEditCli()"><i class="ti ti-check"></i> Guardar</button>
     </div>
   </div>
 </div>
@@ -592,7 +714,7 @@ function rebuildMoPrecios(){
 rebuildMoPrecios();
 let matsQty={},moQty={},moCustom=[];
 let viaticoOn=true,tipoSel=null;
-let historial=[],clientes=[],agenda=[];
+let historial=[],clientes=[],agenda=[],notas=[];
 let perfil={nombre:'',tel:'',email:'',matricula:''};
 let logoUrl='',logoNombre='';
 let currentTheme='',currentThemeName='Verde';
@@ -615,10 +737,12 @@ function go(id){
   if(id==='s-logo') initLogoScreen();
   if(id==='s-perfil') initPerfil();
   if(id==='s-agenda') renderAgenda();
+  if(id==='s-notas') renderNotas();
 }
 
 function updateHome(){
   document.getElementById('hist-count-home').textContent=historial.length+' guardados';
+  const ncEl=document.getElementById('notas-count-home');if(ncEl)ncEl.textContent=notas.length+(notas.length===1?' nota':' notas');
   document.getElementById('cli-count-home').textContent=clientes.length+' guardados';
   const n=historial.length;
   document.getElementById('home-prog-label').textContent=n+(n===1?' presupuesto guardado':' presupuestos guardados');
@@ -627,6 +751,7 @@ function updateHome(){
   const area=document.getElementById('home-logo-area');
   if(logoUrl) area.innerHTML='<img src="'+logoUrl+'" class="company-logo-img" alt="logo"/>';
   else { const txt=logoNombre||perfil.nombre||''; area.innerHTML=txt?'<span class="company-name-text">'+txt+'</span>':''; }
+  checkAlertas();
 }
 
 // ===== PASO 1 =====
@@ -854,6 +979,11 @@ function guardarHistorial(data,histRef){
   const{total}=buildDocHTML(data);
   data.total=total;
   data.fecha=new Date().toLocaleDateString('es-AR');
+  // Adjuntar foto si hay una cargada
+  if(fotoObraData) data.foto=fotoObraData;
+  fotoObraData=null;
+  const prevMini=document.getElementById('foto-preview-mini');
+  if(prevMini)prevMini.remove();
   if(histRef!==null&&histRef!==undefined){
     const idx=historial.indexOf(histRef);
     if(idx>-1){historial[idx]=data;guardarStorage();}
@@ -898,13 +1028,25 @@ function renderHistorial(){
   lista.innerHTML=filtrado.map((h)=>{
     const i=historial.indexOf(h);
     const estado=h.estado||'pendiente';
-    const esAprobado=estado==='aprobado';
+    const estadoLabel={pendiente:'Pendiente',aprobado:'✓ Aprobado',rechazado:'✗ Rechazado'}[estado]||'Pendiente';
+    // Alerta de seguimiento
+    const diasSeg=parseInt(localStorage.getItem('pres_diasSeguimiento')||'7');
+    let alertaSeg='';
+    if(estado==='pendiente'&&h.fecha){
+      const partes=h.fecha.split('/');
+      const fechaPres=partes.length===3?new Date(+partes[2],+partes[1]-1,+partes[0]):null;
+      if(fechaPres){const dias=Math.floor((Date.now()-fechaPres.getTime())/86400000);if(dias>=diasSeg)alertaSeg='<span style="color:var(--amber);font-size:11px;margin-left:4px;"><i class="ti ti-bell"></i> '+dias+'d</span>';}
+    }
+    // Foto adjunta
+    const fotoThumb=h.foto?'<img src="'+h.foto+'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;margin-right:6px;flex-shrink:0;" onclick="event.stopPropagation();verFotoHist('+i+')"/>':'';
     return '<div class="hist-card" onclick="verHist('+i+')">'
-    +'<div class="hist-top"><div><div class="hist-name">'+h.cliente+'</div><div class="hist-date">'+h.fecha+'</div></div>'
+    +'<div class="hist-top" style="display:flex;align-items:flex-start;gap:8px;">'
+    +fotoThumb
+    +'<div style="flex:1;"><div class="hist-name">'+h.cliente+'</div><div class="hist-date">'+h.fecha+alertaSeg+'</div></div>'
     +'<div class="hist-amount">'+fmtN(h.total||0)+'</div></div>'
     +'<div class="hist-bottom"><span class="hist-tipo">'+h.tipo+'</span>'
     +'<div style="display:flex;gap:6px;align-items:center;">'
-    +'<span class="estado-badge '+(esAprobado?'aprobado':'pendiente')+'">'+(esAprobado?'✓ Aprobado':'Pendiente')+'</span>'
+    +'<span class="estado-badge '+estado+'">'+estadoLabel+'</span>'
     +'<button class="btn-sm" onclick="event.stopPropagation();toggleEstado('+i+')" title="Cambiar estado"><i class="ti ti-refresh"></i></button>'
     +'<button class="btn-sm" onclick="event.stopPropagation();editarHist('+i+')"><i class="ti ti-edit"></i></button>'
     +'<button class="btn-sm danger" onclick="event.stopPropagation();elimHist('+i+')"><i class="ti ti-trash"></i></button>'
@@ -958,11 +1100,36 @@ function elimHist(i){if(confirm('Eliminar este presupuesto?')){historial.splice(
 
 function toggleEstado(i){
   const h=historial[i];
-  h.estado=(h.estado==='aprobado')?'pendiente':'aprobado';
+  const ciclo={pendiente:'aprobado',aprobado:'rechazado',rechazado:'pendiente'};
+  h.estado=ciclo[h.estado||'pendiente']||'aprobado';
   guardarStorage();renderHistorial();
 }
 
-function compartirPDF(){window.print();}
+function compartirPDF(){
+  // Abre el presupuesto en una nueva ventana lista para imprimir/guardar como PDF
+  const docEl=document.getElementById('doc-wrap');
+  if(!docEl||!docEl.innerHTML.trim()){alert('Generá un presupuesto primero.');return;}
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Presupuesto</title><style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#f5f5f5;padding:12px;}'+
+    '.doc{background:#fff;border-radius:12px;overflow:hidden;color:#1a1a1a;max-width:600px;margin:0 auto;}'+
+    '.doc-head{padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #00c853;}'+
+    '.doc-company-name{font-size:16px;font-weight:800;}.doc-company-img{max-height:36px;max-width:100px;object-fit:contain;}'+
+    '.doc-presup-lbl{font-size:11px;color:#aaa;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-left:6px;}'+
+    '.doc-date{font-size:12px;color:#aaa;}.doc-parties{display:grid;grid-template-columns:1fr 1fr;padding:14px 18px 10px;}'+
+    '.party-lbl{font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}'+
+    '.party-name{font-size:14px;font-weight:700;}.doc-tipo{display:inline-block;border-radius:6px;padding:3px 12px;font-size:12px;font-weight:700;margin:0 18px 10px;border:1px solid #00c853;color:#00c853;}'+
+    '.doc-sec{font-size:10px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:6px 18px 2px;}'+
+    '.doc-line{display:flex;justify-content:space-between;padding:7px 18px;font-size:13px;color:#333;}'+
+    '.doc-qty{font-size:11px;color:#388e3c;font-weight:700;}.doc-subtot{display:flex;justify-content:space-between;padding:8px 18px;font-size:12px;color:#888;border-top:1px solid #eee;}'+
+    '.doc-total-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;margin-top:6px;}'+
+    '.doc-total-lbl{font-size:15px;font-weight:800;color:#000;letter-spacing:1px;}.doc-total-amt{font-size:22px;font-weight:800;color:#000;}'+
+    '.doc-valido{text-align:center;padding:10px;font-size:12px;color:#aaa;}'+
+    '@media print{body{padding:0;background:#fff;}.doc{border-radius:0;max-width:100%;}}</style></head><body>'+docEl.innerHTML+'<script>window.onload=function(){window.print();}<\/script></body></html>';
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.target='_blank';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
 function compartirWA(){
   const doc=document.querySelector('.doc');
   if(!doc)return;
@@ -973,20 +1140,118 @@ function compartirWA(){
 function renderClientes(){
   const lista=document.getElementById('cli-lista');
   if(!clientes.length){lista.innerHTML='<div class="empty-state"><i class="ti ti-users"></i><p>No hay clientes guardados</p></div>';return;}
-  lista.innerHTML=clientes.map((c,i)=>
-    '<div class="hist-card"><div class="hist-top">'
-    +'<div><div class="hist-name">'+c.nombre+'</div>'+(c.dni?'<div class="hist-date">DNI: '+c.dni+'</div>':'')+(c.dir?'<div class="hist-date">'+c.dir+'</div>':'')+'</div>'
-    +'<button class="btn-sm danger" onclick="elimCli('+i+')"><i class="ti ti-trash"></i></button>'
-    +'</div></div>'
-  ).join('');
+  lista.innerHTML=clientes.map((c,i)=>{
+    const sub=[c.dni?'DNI: '+c.dni:'',c.dir||'',c.tel||''].filter(Boolean).join(' · ');
+    return '<div class="hist-card">'
+      +'<div class="hist-top"><div style="flex:1;">'
+      +'<div class="hist-name">'+c.nombre+'</div>'
+      +(sub?'<div class="hist-date" style="margin-top:3px;">'+sub+'</div>':'')
+      +'</div>'
+      +'<div style="display:flex;gap:6px;align-items:center;">'
+      +(c.tel?'<a href="tel:'+c.tel+'" onclick="event.stopPropagation()" class="btn-sm" style="text-decoration:none;"><i class="ti ti-phone"></i></a>':'')
+      +'<button class="btn-sm" onclick="event.stopPropagation();abrirEditCli('+i+')"><i class="ti ti-edit"></i></button>'
+      +'<button class="btn-sm danger" onclick="event.stopPropagation();elimCli('+i+')"><i class="ti ti-trash"></i></button>'
+      +'</div></div></div>';
+  }).join('');
+}
+let editCliIdx=-1;
+function abrirEditCli(i){
+  editCliIdx=i;
+  const c=clientes[i];
+  document.getElementById('edit-cli-nombre').value=c.nombre||'';
+  document.getElementById('edit-cli-dni').value=c.dni||'';
+  document.getElementById('edit-cli-dir').value=c.dir||'';
+  document.getElementById('edit-cli-tel').value=c.tel||'';
+  document.getElementById('modal-edit-cli').style.display='flex';
+}
+function guardarEditCli(){
+  if(editCliIdx<0)return;
+  const n=document.getElementById('edit-cli-nombre').value.trim();
+  if(!n){alert('El nombre es obligatorio.');return;}
+  clientes[editCliIdx]={
+    nombre:n,
+    dni:document.getElementById('edit-cli-dni').value.trim(),
+    dir:document.getElementById('edit-cli-dir').value.trim(),
+    tel:document.getElementById('edit-cli-tel').value.trim()
+  };
+  guardarStorage();renderClientes();cerrarModals();
 }
 function addCliente(){
-  const n=prompt('Nombre del cliente:');if(!n||!n.trim())return;
-  const dni=prompt('DNI (Enter para omitir):')||'';
-  const dir=prompt('Dirección (Enter para omitir):')||'';
-  clientes.push({nombre:n.trim(),dni,dir});guardarStorage();renderClientes();updateHome();
+  editCliIdx=clientes.length;
+  clientes.push({nombre:'',dni:'',dir:'',tel:''});
+  abrirEditCli(editCliIdx);
+  // override guardar para push correcto
+  document.getElementById('edit-cli-nombre').value='';
+  document.getElementById('edit-cli-dni').value='';
+  document.getElementById('edit-cli-dir').value='';
+  document.getElementById('edit-cli-tel').value='';
+}
+// sobrescribir guardarEditCli para manejar nuevo cliente vacío
+const _origGuardarEditCli=guardarEditCli;
+function guardarEditCli(){
+  if(editCliIdx<0)return;
+  const n=document.getElementById('edit-cli-nombre').value.trim();
+  if(!n){alert('El nombre es obligatorio.');return;}
+  const obj={nombre:n,dni:document.getElementById('edit-cli-dni').value.trim(),dir:document.getElementById('edit-cli-dir').value.trim(),tel:document.getElementById('edit-cli-tel').value.trim()};
+  if(editCliIdx>=clientes.length){clientes.push(obj);}
+  else{clientes[editCliIdx]=obj;}
+  guardarStorage();renderClientes();updateHome();cerrarModals();
 }
 function elimCli(i){if(confirm('Eliminar cliente?')){clientes.splice(i,1);guardarStorage();renderClientes();updateHome();}}
+
+// ===== NOTAS =====
+let editNotaIdx=-1;
+function renderNotas(){
+  const lista=document.getElementById('notas-lista');
+  if(!notas.length){
+    lista.innerHTML='<div class="empty-state"><i class="ti ti-notebook"></i><p>No hay notas guardadas</p><p style="font-size:12px;margin-top:8px;">Usá el + para agregar referencias técnicas,<br>tablas de cables, reglas que uses seguido...</p></div>';
+    return;
+  }
+  lista.innerHTML=notas.map((n,i)=>'<div style="background:var(--bg2);border-radius:14px;padding:16px;margin-bottom:10px;border-left:3px solid var(--accent);">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;">'
+    +'<div style="font-size:15px;font-weight:700;color:var(--text);flex:1;">'+escHtml(n.titulo)+'</div>'
+    +'<div style="display:flex;gap:6px;flex-shrink:0;">'
+    +'<button class="btn-sm" onclick="abrirModalNota('+i+')"><i class="ti ti-edit"></i></button>'
+    +'<button class="btn-sm danger" onclick="elimNota('+i+')"><i class="ti ti-trash"></i></button>'
+    +'</div></div>'
+    +'<pre style="font-size:13px;color:var(--text2);white-space:pre-wrap;word-break:break-word;font-family:inherit;line-height:1.6;">'+escHtml(n.contenido)+'</pre>'
+    +'</div>'
+  ).join('');
+}
+function escHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function abrirModalNota(i){
+  editNotaIdx=i;
+  if(i===-1){
+    document.getElementById('modal-nota-title').textContent='Nueva nota';
+    document.getElementById('nota-titulo').value='';
+    document.getElementById('nota-contenido').value='';
+  } else {
+    document.getElementById('modal-nota-title').textContent='Editar nota';
+    document.getElementById('nota-titulo').value=notas[i].titulo||'';
+    document.getElementById('nota-contenido').value=notas[i].contenido||'';
+  }
+  document.getElementById('modal-nota').style.display='flex';
+  setTimeout(()=>document.getElementById('nota-titulo').focus(),100);
+}
+function guardarNota(){
+  const titulo=document.getElementById('nota-titulo').value.trim();
+  const contenido=document.getElementById('nota-contenido').value.trim();
+  if(!titulo&&!contenido){alert('Escribí algo antes de guardar.');return;}
+  const obj={titulo:titulo||'Sin título',contenido};
+  if(editNotaIdx===-1){notas.unshift(obj);}
+  else{notas[editNotaIdx]=obj;}
+  guardarStorage();cerrarModals();renderNotas();
+  // actualizar contador en home
+  const el=document.getElementById('notas-count-home');
+  if(el)el.textContent=notas.length+(notas.length===1?' nota':' notas');
+}
+function elimNota(i){
+  if(!confirm('¿Eliminar esta nota?'))return;
+  notas.splice(i,1);
+  guardarStorage();renderNotas();
+  const el=document.getElementById('notas-count-home');
+  if(el)el.textContent=notas.length+(notas.length===1?' nota':' notas');
+}
 
 // ===== PRECIOS =====
 function initPrecios(){
@@ -1308,6 +1573,122 @@ function abrirGoogleCalendar(idx){
   window.open(url,'_blank');
 }
 
+// ══════ FOTO DE OBRA ══════
+let fotoObraData=null; // base64 temporal mientras se está armando el presupuesto
+
+function adjuntarFoto(){
+  document.getElementById('foto-obra-inp').click();
+}
+function onFotoObra(inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    fotoObraData=e.target.result;
+    // Mostrar mini preview en footer
+    let prev=document.getElementById('foto-preview-mini');
+    if(!prev){prev=document.createElement('div');prev.id='foto-preview-mini';prev.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--bg2);border-top:1px solid var(--border);';document.querySelector('#s-vista .footer').prepend(prev);}
+    prev.innerHTML='<img src="'+fotoObraData+'" style="width:40px;height:40px;object-fit:cover;border-radius:6px;"/><span style="font-size:13px;color:var(--text2);">Foto adjunta</span><button onclick="quitarFotoObra()" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;margin-left:auto;"><i class="ti ti-x"></i></button>';
+    inp.value='';
+  };
+  reader.readAsDataURL(file);
+}
+function quitarFotoObra(){
+  fotoObraData=null;
+  const prev=document.getElementById('foto-preview-mini');
+  if(prev)prev.remove();
+}
+function verFotoHist(i){
+  const h=historial[i];
+  if(!h||!h.foto)return;
+  document.getElementById('foto-modal-img').src=h.foto;
+  document.getElementById('modal-foto').style.display='flex';
+}
+
+// ══════ EXPORTAR COMO IMAGEN ══════
+function compartirImagen(){
+  const docEl=document.getElementById('doc-wrap');
+  if(!docEl||!docEl.innerHTML.trim()){alert('Generá un presupuesto primero.');return;}
+  // Usar html2canvas si está disponible, sino abrir ventana para screenshot manual
+  if(typeof html2canvas!=='undefined'){
+    html2canvas(docEl.querySelector('.doc')||docEl,{scale:2,backgroundColor:'#ffffff',useCORS:true}).then(canvas=>{
+      canvas.toBlob(blob=>{
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');
+        a.href=url;a.download='presupuesto.png';a.click();
+        setTimeout(()=>URL.revokeObjectURL(url),3000);
+      },'image/png');
+    });
+  } else {
+    // Cargar html2canvas dinámicamente
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload=()=>compartirImagen();
+    s.onerror=()=>alert('No se pudo cargar el exportador de imágenes. Verificá tu conexión.');
+    document.head.appendChild(s);
+  }
+}
+
+// ══════ AJUSTE MASIVO ══════
+function ajusteMasivoModal(){
+  document.getElementById('ajuste-pct').value='';
+  document.getElementById('modal-ajuste').style.display='flex';
+}
+function aplicarAjuste(){
+  const pct=parseFloat(document.getElementById('ajuste-pct').value);
+  if(!pct||pct<=0){alert('Ingresá un porcentaje válido.');return;}
+  const mult=1+(pct/100);
+  const haceMats=document.getElementById('ajuste-mats').checked;
+  const haceMO=document.getElementById('ajuste-mo').checked;
+  if(!haceMats&&!haceMO){alert('Seleccioná al menos una categoría.');return;}
+  if(haceMats){
+    Object.values(matsPrecios).forEach(items=>items.forEach(it=>{ it.p=Math.round(it.p*mult); }));
+  }
+  if(haceMO){
+    Object.entries(moData).forEach(([cat,items])=>items.forEach((it,i)=>{
+      it.p=Math.round(it.p*mult);
+      moPrecios[cat+'::'+i]=it.p;
+    }));
+  }
+  guardarStorage();
+  cerrarModals();
+  if(document.getElementById('s-precios').classList.contains('active')) initPrecios();
+  alert('✓ Precios aumentados un '+pct+'%');
+}
+
+// ══════ SEGUIMIENTO ══════
+function configurarSeguimiento(){
+  const dias=localStorage.getItem('pres_diasSeguimiento')||'7';
+  document.getElementById('seg-dias').value=dias;
+  document.getElementById('modal-seguimiento').style.display='flex';
+}
+function guardarSeguimiento(){
+  const d=parseInt(document.getElementById('seg-dias').value)||7;
+  localStorage.setItem('pres_diasSeguimiento',d);
+  document.getElementById('cfg-seg-sub').textContent='A los '+d+' día'+(d===1?'':'s')+' sin respuesta';
+  cerrarModals();
+}
+
+// ══════ ALERTA SEGUIMIENTO EN HOME ══════
+function checkAlertas(){
+  const diasSeg=parseInt(localStorage.getItem('pres_diasSeguimiento')||'7');
+  const pendientes=historial.filter(h=>{
+    if((h.estado||'pendiente')!=='pendiente')return false;
+    if(!h.fecha)return false;
+    const partes=h.fecha.split('/');
+    if(partes.length!==3)return false;
+    const f=new Date(+partes[2],+partes[1]-1,+partes[0]);
+    return Math.floor((Date.now()-f.getTime())/86400000)>=diasSeg;
+  });
+  const el=document.getElementById('alerta-seguimiento');
+  if(!el)return;
+  if(pendientes.length){
+    el.style.display='flex';
+    el.querySelector('#alerta-seg-txt').textContent=pendientes.length+' presupuesto'+(pendientes.length>1?'s requieren':'requiere')+' seguimiento';
+  } else {
+    el.style.display='none';
+  }
+}
+
 function guardarStorage(){
   try{
     localStorage.setItem('pres_historial', JSON.stringify(historial));
@@ -1320,6 +1701,7 @@ function guardarStorage(){
     localStorage.setItem('pres_matsPrecios', JSON.stringify(matsPrecios));
     localStorage.setItem('pres_moData', JSON.stringify(moData));
     localStorage.setItem('pres_agenda', JSON.stringify(agenda));
+    localStorage.setItem('pres_notas', JSON.stringify(notas));
   }catch(e){}
 }
 function cargarStorage(){
@@ -1335,6 +1717,10 @@ function cargarStorage(){
     const mp=localStorage.getItem('pres_matsPrecios'); if(mp) matsPrecios=JSON.parse(mp);
     const mo=localStorage.getItem('pres_moData'); if(mo){moData=JSON.parse(mo);moPrecios={};rebuildMoPrecios();}
     const ag=localStorage.getItem('pres_agenda'); if(ag) agenda=JSON.parse(ag);
+    const nt=localStorage.getItem('pres_notas'); if(nt) notas=JSON.parse(nt);
+    const ds=localStorage.getItem('pres_diasSeguimiento')||'7';
+    const segEl=document.getElementById('cfg-seg-sub');
+    if(segEl)segEl.textContent='A los '+ds+' día'+(ds==='1'?'':'s')+' sin respuesta';
   }catch(e){}
 }
 function exportarDatos(){
