@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>Presupuestos App</title>
+<title>Westricity</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#00c853"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Westricity"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -192,6 +196,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="screen active" id="s-home">
   <div class="home-logo-area" id="home-logo-area"></div>
   <div class="home-greeting" id="home-greeting">Hola !</div>
+  <div id="lic-banner-home" onclick="abrirModalLicencia()" style="display:none;"></div>
   <div id="alerta-seguimiento" style="display:none;align-items:center;gap:10px;margin:0 4px 6px;background:rgba(249,168,37,.12);border:1px solid var(--amber);border-radius:14px;padding:12px 16px;cursor:pointer;" onclick="go('s-historial')">
     <i class="ti ti-bell" style="color:var(--amber);font-size:20px;flex-shrink:0;"></i>
     <span id="alerta-seg-txt" style="font-size:14px;font-weight:600;color:var(--amber);flex:1;"></span>
@@ -622,6 +627,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- MODAL LICENCIA -->
+<div class="modal-ov" id="modal-licencia" onclick="if(event.target===this)cerrarModals()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <span id="lic-modal-title">Activar versión completa</span>
+      <button class="modal-close" onclick="cerrarModals()"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="lic-modal-body" style="padding:20px 18px;">
+      <!-- se rellena por JS -->
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDITAR CLIENTE -->
 <div class="modal-ov" id="modal-edit-cli" onclick="cerrarModals()">
   <div class="modal-box" onclick="event.stopPropagation()">
@@ -752,6 +770,7 @@ function updateHome(){
   if(logoUrl) area.innerHTML='<img src="'+logoUrl+'" class="company-logo-img" alt="logo"/>';
   else { const txt=logoNombre||perfil.nombre||''; area.innerHTML=txt?'<span class="company-name-text">'+txt+'</span>':''; }
   checkAlertas();
+  updateLicBanner();
 }
 
 // ===== PASO 1 =====
@@ -975,6 +994,11 @@ function generarVista(){
 function editarDesdeVista(){go('s-paso1');}
 
 function guardarHistorial(data,histRef){
+  // Verificar límite solo para presupuestos nuevos (no ediciones)
+  if(!histRef&&histRef!==0&&!checkLimitePres()){
+    abrirModalLicencia();
+    return;
+  }
   if(!data)data=capturaData();
   const{total}=buildDocHTML(data);
   data.total=total;
@@ -1106,6 +1130,7 @@ function toggleEstado(i){
 }
 
 function compartirPDF(){
+  if(isFree()){abrirModalLicencia();return;}
   // Abre el presupuesto en una nueva ventana lista para imprimir/guardar como PDF
   const docEl=document.getElementById('doc-wrap');
   if(!docEl||!docEl.innerHTML.trim()){alert('Generá un presupuesto primero.');return;}
@@ -1299,6 +1324,7 @@ function contarMods(){
 function restaurarPrecios(){if(confirm('Restaurar todos los precios?')){matsPrecios=JSON.parse(JSON.stringify(MATS_DEF));guardarStorage();renderPrecios();}}
 
 function exportarXLS(){
+  if(isFree()){abrirModalLicencia();return;}
   const wb=XLSX.utils.book_new();
 
   // Hoja 1: Materiales
@@ -1606,6 +1632,7 @@ function verFotoHist(i){
 
 // ══════ EXPORTAR COMO IMAGEN ══════
 function compartirImagen(){
+  if(isFree()){abrirModalLicencia();return;}
   const docEl=document.getElementById('doc-wrap');
   if(!docEl||!docEl.innerHTML.trim()){alert('Generá un presupuesto primero.');return;}
   // Usar html2canvas si está disponible, sino abrir ventana para screenshot manual
@@ -1630,6 +1657,7 @@ function compartirImagen(){
 
 // ══════ AJUSTE MASIVO ══════
 function ajusteMasivoModal(){
+  if(isFree()){abrirModalLicencia();return;}
   document.getElementById('ajuste-pct').value='';
   document.getElementById('modal-ajuste').style.display='flex';
 }
@@ -1687,6 +1715,106 @@ function checkAlertas(){
   } else {
     el.style.display='none';
   }
+}
+
+// ════════════════════════════════════════
+// SISTEMA DE LICENCIA
+// ════════════════════════════════════════
+const LIC_KEY='wst_lic_v1';
+const LIC_SALT='W3str1c1ty#2026'; // ← cambiá esto en tu versión, es tu clave secreta
+const FREE_LIMIT=5;
+
+function hashSimple(str){
+  // Hash deterministico simple (no criptográfico, pero suficiente)
+  let h=0;
+  for(let i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}
+  return Math.abs(h).toString(36).toUpperCase();
+}
+
+function generarCodigo(tel){
+  // Normalizar: solo dígitos
+  const t=tel.replace(/\D/g,'');
+  return hashSimple(t+LIC_SALT+t.length);
+}
+
+function isActivado(){
+  try{
+    const d=JSON.parse(localStorage.getItem(LIC_KEY)||'{}');
+    if(!d.tel||!d.code)return false;
+    return d.code===generarCodigo(d.tel);
+  }catch(e){return false;}
+}
+
+function isFree(){return !isActivado();}
+
+function checkLimitePres(){
+  // Retorna true si puede guardar, false si llegó al límite
+  if(isActivado())return true;
+  return historial.length<FREE_LIMIT;
+}
+
+function updateLicBanner(){
+  const el=document.getElementById('lic-banner-home');
+  if(!el)return;
+  if(isActivado()){
+    el.style.display='none';
+    return;
+  }
+  const restantes=Math.max(0,FREE_LIMIT-historial.length);
+  el.style.display='flex';
+  el.className='lic-banner lic-banner-free';
+  el.innerHTML='<span class="lic-icon" style="color:var(--amber)"><i class="ti ti-lock"></i></span>'
+    +'<div class="lic-txt" style="color:var(--amber);">Versión gratuita'
+    +'<div class="lic-sub">'+restantes+' presupuesto'+(restantes===1?'':'s')+' disponible'+(restantes===1?'':'s')+' · Tocá para activar</div>'
+    +'</div>'
+    +'<i class="ti ti-chevron-right" style="color:var(--amber);"></i>';
+}
+
+function abrirModalLicencia(){
+  const act=isActivado();
+  document.getElementById('lic-modal-title').textContent=act?'Licencia activa':'Activar versión completa';
+  const body=document.getElementById('lic-modal-body');
+  if(act){
+    const d=JSON.parse(localStorage.getItem(LIC_KEY)||'{}');
+    body.innerHTML='<div style="text-align:center;padding:10px 0 20px;">'
+      +'<div style="font-size:48px;margin-bottom:12px;">✅</div>'
+      +'<div style="font-size:16px;font-weight:700;color:var(--accent);margin-bottom:6px;">Versión completa activa</div>'
+      +'<div style="font-size:13px;color:var(--text3);">Registrado a: '+d.tel+'</div>'
+      +'</div>';
+    document.getElementById('modal-licencia').style.display='flex';
+    return;
+  }
+  body.innerHTML=
+    '<div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:18px;">'
+    +'<div style="font-size:13px;font-weight:700;margin-bottom:8px;">Versión gratuita incluye:</div>'
+    +'<div style="font-size:13px;color:var(--text2);line-height:1.8;">'
+    +'✅ Hasta '+FREE_LIMIT+' presupuestos<br>'
+    +'✅ Clientes, Agenda, Notas<br>'
+    +'❌ Presupuestos ilimitados<br>'
+    +'❌ Exportar Excel / PDF / Imagen<br>'
+    +'❌ Ajuste masivo de precios'
+    +'</div></div>'
+    +'<label class="field-label">TU NÚMERO DE WHATSAPP</label>'
+    +'<input class="field-input" id="lic-tel" type="tel" placeholder="Ej: 1122334455" style="margin-bottom:6px;"/>'
+    +'<label class="field-label">CÓDIGO DE ACTIVACIÓN</label>'
+    +'<input class="field-input" id="lic-code" type="text" placeholder="Ingresá el código que recibiste" style="text-transform:uppercase;letter-spacing:2px;"/>'
+    +'<button class="btn-accent" style="border-radius:12px;" onclick="activarLicencia()"><i class="ti ti-key"></i> Activar</button>'
+    +'<div style="text-align:center;margin-top:14px;font-size:12px;color:var(--text4);">Para obtener tu código escribí a<br><a href="https://wa.me/5491100000000?text=Quiero%20activar%20Westricity" style="color:var(--accent);font-weight:600;" target="_blank">WhatsApp del desarrollador</a></div>';
+  document.getElementById('modal-licencia').style.display='flex';
+}
+
+function activarLicencia(){
+  const tel=(document.getElementById('lic-tel').value||'').replace(/\D/g,'');
+  const code=(document.getElementById('lic-code').value||'').trim().toUpperCase();
+  if(!tel){alert('Ingresá tu número de WhatsApp.');return;}
+  if(!code){alert('Ingresá el código de activación.');return;}
+  if(code!==generarCodigo(tel)){
+    alert('❌ Código incorrecto. Verificá el número y el código.');return;
+  }
+  localStorage.setItem(LIC_KEY,JSON.stringify({tel,code,fecha:new Date().toISOString()}));
+  cerrarModals();
+  updateLicBanner();
+  setTimeout(()=>alert('🎉 ¡Activación exitosa! Ya tenés la versión completa.'),200);
 }
 
 function guardarStorage(){
@@ -1784,6 +1912,14 @@ function importarDatos(inp){
 // INIT
 cargarStorage();
 updateHome();
+
+// Registrar Service Worker para PWA
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js')
+      .catch(err=>console.log('SW no disponible:', err));
+  });
+}
 </script>
 </body>
 </html>
